@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 500 500" height="500pt" width="500pt" id="svg_colorblendmodes">
+  <defs id="defs_cbm">
+    <filter id="filter_cbm" style="color-interpolation-filters:sRGB" filterUnits="userSpaceOnUse" x="0" y="0" width="500" height="500">
+      <feFlood flood-color="#ffffff" in="SourceGraphic"/>
+      <feComposite in2="SourceAlpha" operator="in"/>
+      <feOffset dx="-95" dy="165" result="c_white"/>
+      <feFlood flood-color="#389826" in="SourceGraphic"/>
+      <feComposite in2="SourceAlpha" operator="in" result="c_green"/>
+      <feFlood flood-color="#cb3c33" in="SourceGraphic"/>
+      <feComposite in2="SourceAlpha" operator="in"/>
+      <feOffset dx="-95" dy="165" result="c_red"/>
+      <feFlood flood-color="#9558b2" in="SourceGraphic"/>
+      <feComposite in2="SourceAlpha" operator="in"/>
+      <feOffset dx="95" dy="165" result="c_purple"/>
+      <feBlend mode="normal" in1="SourceGraphic" in2="c_white"/>
+      <feBlend mode="normal" in2="c_purple"/>
+      <feBlend mode="multiply" in2="c_red"/>
+      <feBlend mode="screen" in2="c_green" />
+    </filter>
+  </defs>
+  <circle id="circle" cy="170" cx="250" r="140" style="filter:url(#filter_cbm)" />
+</svg>
