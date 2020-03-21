@@ -1,0 +1,45 @@
+
+article > p {
+  display: inline-block;
+}
+div.mix {
+  display: none;
+  position: relative;
+  width: 256px;
+  height: 256px;
+  margin-left: 1em;
+}
+
+@supports (mix-blend-mode: normal) {
+  div.mix {
+    display: inline-block;
+  }
+}
+
+div.mix div {
+  position: absolute;
+  mix-blend-mode: inherit;
+  width: 256px;
+  height: 256px;
+  background: url('juliadots.png');
+  transition: transform 0.1s ease;
+}
+div.mix div:first-child {
+  mix-blend-mode: unset;
+  background: url('grad_256.png');
+}
+
+div.mix div:last-child {
+  opacity: 0.4;
+  background: url('wave_256.png');
+}
+
+div.mix:hover div {
+  transform:translateY(-4%);
+}
+div.mix:hover div:first-child {
+  transform:unset;
+}
+div.mix:hover div:last-child {
+  transform:translateY(16%);
+}
