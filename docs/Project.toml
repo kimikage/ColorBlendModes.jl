@@ -1,3 +1,9 @@
 [deps]
+ColorTypes = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+FixedPointNumbers = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 PNGFiles = "f57f5aa1-a3ce-4bc8-8ab9-96f992907883"
+
+[compat]
+Documenter = "0.24"
+julia = "1"

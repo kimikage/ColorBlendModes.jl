@@ -8,14 +8,14 @@ The behavior of this package is based on the CSS
 
 ## Basic usage
 
-```@doctest
-julia> using ColorBlendModes, ColorType;
+```jldoctest
+julia> using ColorBlendModes, ColorTypes, FixedPointNumbers;
 
 julia> BlendMultiply(RGB{Float32}(1.0, 0.5, 0.0), RGB{Float32}(0.5, 0.5, 0.5))
-RGB{Float32}(0.5, 0.25, 0.0)
+RGB{Float32}(0.5f0,0.25f0,0.0f0)
 
 julia> blend(RGB(1, 1, 0), RGB(0, 1, 1), mode=BlendDarken)
-RGB{N0f8}(0.0, 1.0, 0.0)
+RGB{N0f8}(0.0,1.0,0.0)
 
 julia> image1 = [RGB(r, 1, b) for r=0:1, b=0:1]
 2×2 Array{RGB{N0f8},2} with eltype RGB{Normed{UInt8,8}}:
