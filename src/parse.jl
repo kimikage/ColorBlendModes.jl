@@ -19,9 +19,8 @@ const mode_keywords = [
 ]
 
 function Base.parse(::Type{<:BlendMode}, keyword::AbstractString)
-    k = get(mode_keyword, s, nothing)
-    k !== nothing && return BlendMode{Symbol(k)}()
-    kl = get(lowercase(strip(keyword)), s, nothing)
-    kl !== nothing && return BlendMode{Symbol(kl)}()
+    keyword in mode_keywords && return BlendMode{Symbol(keyword)}()
+    kl = lowercase(strip(keyword))
+    kl in mode_keywords && return BlendMode{Symbol(kl)}()
     throw(ArgumentError("invalid keyword: $keyword"))
 end
