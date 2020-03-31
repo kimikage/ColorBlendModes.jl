@@ -22,6 +22,9 @@ export BlendMode,
        BlendSaturation,
        BlendColor,
        BlendLuminosity
+export CompositeOperation,
+       CompositeSourceOver,
+       CompositeSourceAtop
 export blend, keyword
 
 include("types.jl")

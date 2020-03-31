@@ -5,20 +5,23 @@ _n(v::T) where T = oneunit(T) - v
 # linear interpolation
 _w(v1::T, v2::T, w) where T = convert(T, muladd(_n(w), v1, w * v2))
 
-@inline (mode::BlendMode)(c1, c2; opacity=nothing, clipping=false) =
-    _blend(mode, c1, c2, opacity, Val{clipping})
+@inline (mode::BlendMode)(c1, c2; opacity=nothing, op=CompositeSourceOver) =
+    _blend(mode, c1, c2, opacity, op)
+
+@inline (op::CompositeOperation)(c1, c2; opacity=nothing, mode=BlendNormal) =
+    _blend(mode, c1, c2, opacity, op)
 
 """
-    blend(c1, c2; mode=BlendNormal, opacity=1)
+    blend(c1, c2; mode=BlendNormal, opacity=nothing, op=CompositeSourceOver)
 """
-@inline blend(c1, c2; mode::BlendMode=BlendNormal, opacity=nothing, clipping=false) =
-    _blend(mode, c1, c2, opacity, Val{clipping})
+@inline blend(c1, c2; mode::BlendMode=BlendNormal, opacity=nothing, op=CompositeSourceOver) =
+    _blend(mode, c1, c2, opacity, op)
 
-# drop clipping kwarg
-@inline _blend(mode::BlendMode, c1, c2, opacity, ::Type{Val{false}}) =
+# drop op kwarg
+@inline _blend(mode::BlendMode, c1::TransparentColor, c2, opacity, ::CompositeOperation{Symbol("source-over")}) =
     _blend(mode, c1, c2, opacity)
 
-@inline _blend(mode::BlendMode, c1::Color, c2, opacity, ::Type{Val{true}}) =
+@inline _blend(mode::BlendMode, c1::Color, c2, opacity, ::DestAlphaFreeOperaions) =
     _blend(mode, c1, c2, opacity)
 
 # without opacity
