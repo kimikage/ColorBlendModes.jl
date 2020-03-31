@@ -170,3 +170,116 @@ function exclusion(v1::N0f16, v2::N0f16)
     z = muladd(rv1 + rv2, 0xFFFF, -(m + m))
     reinterpret(N0f16, unsafe_trunc(UInt16, (z + ((z + 0x8000) >> 0x10) + 0x8000) >> 0x10))
 end
+
+lum100(c::AbstractRGB) = lum100(red(c), green(c), blue(c))
+lum100(r::T, g::T, b::T) where T = muladd(T(59), g, muladd(T(11), b, T(30) * r))
+function lum100(r::T, g::T, b::T) where T <: Normed
+    F = floattype(T)
+    rr = reinterpret(r)
+    rg = reinterpret(g)
+    rb = reinterpret(b)
+    ri = reinterpret(oneunit(T))
+    muladd(F(59), rg, muladd(F(11), rb, F(30) * rr)) / F(ri)
+end
+function lum100(r::T, g::T, b::T) where T <: Normed{UInt8}
+    F = floattype(T)
+    rr = reinterpret(r)
+    rg = reinterpret(g)
+    rb = reinterpret(b)
+    unsafe_trunc(Int32, 0x268cf3 * rr + 0x4bd0f0 * rg + 0xe229d * rb) * 4.65661322835f-8
+end
+function setlum(c::C, l::AbstractFloat) where {T, C <: AbstractRGB{T}}
+    lc = lum100(c)
+    r, g, b = red(c), green(c), blue(c)
+    n = min(r, g, b)
+    x = max(r, g, b)
+
+    d = (lc - l) / 100
+    if n < d
+        # k = l / (lc - 100n)
+        # cr, cg, cb = map(c -> c * k - n * k, (r, g, b))
+        if n == r
+            cr = zero(T)
+            cb = (b - n) * l / muladd(T(-70), r - g, T(11) * (b - g))
+            cg = max(cr, muladd(T(-11), cb, l) * T(1/59))
+        elseif n == g
+            cg = zero(T)
+            cb = (b - n) * l / muladd(T(30), r - g, T(11) * (b - g))
+            cr = max(cg, muladd(T(-11), cb, l) * T(1/30))
+        else
+            cb = zero(T)
+            cr = (r - n) * l / muladd(T(30), r - g, T(-89) * (b - g))
+            cg = max(cb, muladd(T(-30), cr, l) * T(1/59))
+        end
+        return C(cr, cg, cb)
+    elseif d < x - oneunit(x)
+        # k1 = 1 / (100x - lc)
+        # kl = l / (100x - lc)
+        # mapc(v -> x * kl - v * kl + (100v - lc) * k1, c)
+        if x == r
+            k1 = muladd(T(70), r - g, T(-11) * (b - g))
+            k2 = muladd(T(-30), r - g, T(89) * (b - g))
+            cr = oneunit(T)
+            cb = muladd(x - b, l, k2) / k1
+            cg = min(cr, muladd(T(-11), cb, l - T(30)) * T(1/59))
+        elseif x == g
+            k1 = muladd(T(-30), r - g, T(-11) * (b - g))
+            k2 = muladd(T(-30), r - g, T(89) * (b - g))
+            cg = oneunit(T)
+            cb = muladd(x - b, l, k2) / k1
+            cr = min(cg, muladd(T(-11), cb, l - T(59)) * T(1/30))
+        else
+            k1 = muladd(T(-30), r - g, T(89) * (b - g))
+            k2 = muladd(T(70), r - g, T(-11) * (b - g))
+            cb = oneunit(T)
+            cr = muladd(x - r, l, k2) / k1
+            cg = min(cb, muladd(T(-30), cr, l - T(11)) * T(1/59))
+        end
+        return C(cr, cg, cb)
+    end
+    return mapc(v -> v - d, c)
+end
+function setlum(c::C, l::AbstractFloat) where {T <: Normed, C <: AbstractRGB{T}}
+    convert(C, setlum(convert(RGB{floattype(T)}, c), l))
+end
+
+
+sat(c::AbstractRGB) = sat(red(c), green(c), blue(c))
+sat(r::T, g::T, b::T) where T = max(r, g, b) - min(r, g, b)
+function setsat(c::C, s) where C <: AbstractRGB
+    r, g, b = float(red(c)), float(green(c)), float(blue(c))
+    cmin_rg, cmax_rg = minmax(r, g)
+    cmin = min(cmin_rg, b)
+    cmax = max(cmax_rg, b)
+    cmax == cmin && return C(zero(eltype(C)))
+
+    cmid = max(cmin_rg, min(cmax_rg, b))
+
+    cmid2 = ((cmid - cmin) * float(s)) / (cmax - cmin)
+    cmax2 = float(s)
+
+    r2 = ifelse(cmax == r, cmax2, ifelse(cmin == r, zero(r), cmid2))
+    g2 = ifelse(cmax == g, cmax2, ifelse(cmin == g, zero(g), cmid2))
+    b2 = ifelse(cmax == b, cmax2, ifelse(cmin == b, zero(b), cmid2))
+
+    C(r2, g2, b2)
+end
+
+_blend(m::M, c1::C, c2::C) where {C <: Color, M <: NonSeparableBlendMode} =
+    convert(C, _belnd(m, convert(RGB, c1), convert(RGB, c2)))
+
+function _blend(::BlendMode{:hue}, c1::C, c2::C) where C <: AbstractRGB
+    setlum(setsat(c2, sat(c1)), lum100(c1))
+end
+
+function _blend(::BlendMode{:saturation}, c1::C, c2::C) where C <: AbstractRGB
+    setlum(setsat(c1, sat(c2)), lum100(c1))
+end
+
+function _blend(::BlendMode{:color}, c1::C, c2::C) where C <: AbstractRGB
+    setlum(c2, lum100(c1))
+end
+
+function _blend(::BlendMode{:luminosity}, c1::C, c2::C) where C <: AbstractRGB
+    setlum(c1, lum100(c2))
+end
