@@ -120,3 +120,24 @@ const NonSeparableBlendMode = Union{
     BlendMode{:color},
     BlendMode{:luminosity},
 }
+
+"""
+    CompositeOperation{op}
+"""
+struct CompositeOperation{op} end
+
+"""
+    CompositeSourceOver
+"""
+const CompositeSourceOver = CompositeOperation{Symbol("source-over")}()
+
+
+"""
+    CompositeSourceAtop
+"""
+const CompositeSourceAtop = CompositeOperation{Symbol("source-atop")}()
+
+const DestAlphaFreeOperaions = Union{
+    CompositeOperation{Symbol("source-over")},
+    CompositeOperation{Symbol("source-atop")},
+}

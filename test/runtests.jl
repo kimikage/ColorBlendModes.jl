@@ -253,10 +253,14 @@ end
 @testset "keyword" begin
     @test keyword(BlendNormal) == "normal"
     @test keyword(BlendColorDodge) == "color-dodge"
+
+    @test keyword(CompositeSourceOver) == "source-over"
 end
 
 @testset "parse" begin
     @test parse(BlendMode, "color-burn") === BlendColorBurn
     @test parse(BlendMode, "Hard-Light") === BlendHardLight
     @test_throws ArgumentError parse(BlendMode, "SoftLight")
+
+    @test parse(CompositeOperation, "source-over") === CompositeSourceOver
 end
