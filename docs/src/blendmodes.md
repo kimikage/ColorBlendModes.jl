@@ -171,3 +171,55 @@ CompositingExamples.generate(BlendExclusion) # hide
 ```@docs
 BlendExclusion
 ```
+## hue
+```@example ex
+CompositingExamples.generate(BlendHue) # hide
+```
+![hue](assets/hue.png)
+```@raw html
+<div class="mix" style="mix-blend-mode:hue;">
+  <div></div><div></div><div></div>
+</div>
+```
+```@docs
+BlendHue
+```
+## saturation
+```@example ex
+CompositingExamples.generate(BlendSaturation) # hide
+```
+![saturation](assets/saturation.png)
+```@raw html
+<div class="mix" style="mix-blend-mode:saturation;">
+  <div></div><div></div><div></div>
+</div>
+```
+```@docs
+BlendSaturation
+```
+## color
+```@example ex
+CompositingExamples.generate(BlendColor) # hide
+```
+![color](assets/color.png)
+```@raw html
+<div class="mix" style="mix-blend-mode:color;">
+  <div></div><div></div><div></div>
+</div>
+```
+```@docs
+BlendColor
+```
+## luminosity
+```@example ex
+CompositingExamples.generate(BlendLuminosity) # hide
+```
+![luminosity](assets/luminosity.png)
+```@raw html
+<div class="mix" style="mix-blend-mode:luminosity;">
+  <div></div><div></div><div></div>
+</div>
+```
+```@docs
+BlendLuminosity
+```
