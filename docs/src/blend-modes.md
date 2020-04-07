@@ -12,9 +12,7 @@ CompositingExamples.generate(BlendNormal) # hide
 ```
 ![normal](assets/normal.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:normal;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix normal"><div></div><div></div><div></div></div>
 ```
 
 ```@docs
@@ -27,9 +25,7 @@ CompositingExamples.generate(BlendMultiply) # hide
 ```
 ![multiply](assets/multiply.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:multiply;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix multiply"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendMultiply
@@ -40,9 +36,7 @@ CompositingExamples.generate(BlendScreen) # hide
 ```
 ![screen](assets/screen.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:screen;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix screen"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendScreen
@@ -54,9 +48,7 @@ CompositingExamples.generate(BlendOverlay) # hide
 ```
 ![overlay](assets/overlay.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:overlay;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix overlay"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendOverlay
@@ -68,9 +60,7 @@ CompositingExamples.generate(BlendDarken) # hide
 ```
 ![darken](assets/darken.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:darken;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix darken"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendDarken
@@ -82,9 +72,7 @@ CompositingExamples.generate(BlendLighten) # hide
 ```
 ![lighten](assets/lighten.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:lighten;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix lighten"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendLighten
@@ -96,9 +84,7 @@ CompositingExamples.generate(BlendColorDodge) # hide
 ```
 ![color-dodge](assets/color-dodge.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:color-dodge;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix color-dodge"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendColorDodge
@@ -110,9 +96,7 @@ CompositingExamples.generate(BlendColorBurn) # hide
 ```
 ![color-burn](assets/color-burn.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:color-burn;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix color-burn"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendColorBurn
@@ -124,9 +108,7 @@ CompositingExamples.generate(BlendHardLight) # hide
 ```
 ![hard-light](assets/hard-light.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:hard-light;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix hard-light"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendHardLight
@@ -138,9 +120,7 @@ CompositingExamples.generate(BlendSoftLight) # hide
 ```
 ![soft-light](assets/soft-light.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:soft-light;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix soft-light"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendSoftLight
@@ -151,9 +131,7 @@ CompositingExamples.generate(BlendDifference) # hide
 ```
 ![difference](assets/difference.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:difference;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix difference"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendDifference
@@ -164,9 +142,7 @@ CompositingExamples.generate(BlendExclusion) # hide
 ```
 ![exclusion](assets/exclusion.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:exclusion;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix exclusion"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendExclusion
@@ -177,9 +153,7 @@ CompositingExamples.generate(BlendHue) # hide
 ```
 ![hue](assets/hue.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:hue;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix hue"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendHue
@@ -190,9 +164,7 @@ CompositingExamples.generate(BlendSaturation) # hide
 ```
 ![saturation](assets/saturation.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:saturation;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix saturation"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendSaturation
@@ -203,9 +175,7 @@ CompositingExamples.generate(BlendColor) # hide
 ```
 ![color](assets/color.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:color;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix color"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendColor
@@ -216,9 +186,7 @@ CompositingExamples.generate(BlendLuminosity) # hide
 ```
 ![luminosity](assets/luminosity.png)
 ```@raw html
-<div class="mix" style="mix-blend-mode:luminosity;">
-  <div></div><div></div><div></div>
-</div>
+<div class="mix luminosity"><div></div><div></div><div></div></div>
 ```
 ```@docs
 BlendLuminosity

@@ -23,6 +23,22 @@ module CompositingExamples
         PNGFiles.save(joinpath("assets", keyword(bm) * ".png"), out)
         nothing
     end
+
+    function generate(bm::BlendMode, opacity::Int)
+        blue  = load_image("blue.png")
+        green = load_image("green.png")
+        out = blend.(blue, green, mode=bm, opacity=opacity/100)
+        PNGFiles.save(joinpath("assets", keyword(bm) * "_" * string(opacity) * ".png"), out)
+        nothing
+    end
+
+    function generate(op::CompositeOperation, bm::BlendMode)
+        blue  = load_image("blue.png")
+        green = load_image("green.png")
+        out = blend.(blue, green, mode=bm, op=op)
+        PNGFiles.save(joinpath("assets", keyword(op) * "_" * keyword(bm) * ".png"), out)
+        nothing
+    end
 end
 
 makedocs(
@@ -34,8 +50,10 @@ makedocs(
     sitename = "ColorBlendModes",
     pages    = Any[
         "Introduction" => "index.md",
-        "Blend Modes" => "blendmodes.md",
-        "Index" => "functionindex.md",
+        "Blending and Compositing" => "blending-and-compositing.md",
+        "Blend Modes" => "blend-modes.md",
+        "Composite Operations" => "composite-operations.md",
+        "Index" => "function-index.md",
         ]
     )
 
