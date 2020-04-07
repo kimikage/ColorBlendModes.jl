@@ -1,47 +1,90 @@
 
+mapca(fc, a, x::C, y::C) where C <: Transparent3 =
+    C(fc(comp1(x), comp1(y)), fc(comp2(x), comp2(y)), fc(comp3(x), comp3(y)), a)
+
 # complement
 _n(v::T) where T = oneunit(T) - v
 
 # linear interpolation
 _w(v1::T, v2::T, w) where T = convert(T, muladd(_n(w), v1, w * v2))
 
+_w(v1::T, w1, v2::T, w2) where T = convert(T, muladd(w1, v1, w2 * v2))
+
+function _comp(op::CompositeOperation{Symbol("source-over")}, c1, c2)
+    k1 = mul(alpha(c1), _n(alpha(c2)))
+    k2 = alpha(c2)
+    a = k1 + k2
+    if a == zero(a)
+        mapc((v1, v2) -> a, c1, c2)
+    else
+        k1a = k1 / a
+        k2a = k2 / a
+        mapca((v1, v2) -> _w(v1, k1a, v2, k2a), a, c1, c2)
+    end
+end
+
+function _comp(op::CompositeOperation{Symbol("source-atop")}, c1, c2)
+    mapca((v1, v2) -> _w(v1, v2, alpha(c2)), alpha(c1), c1, c2)
+end
+
+mix_alpha(opacity::Nothing, a) = a
+mix_alpha(opacity::Real, a) = opacity * a
+
 @inline (mode::BlendMode)(c1, c2; opacity=nothing, op=CompositeSourceOver) =
-    _blend(mode, c1, c2, opacity, op)
+    _blend_c(mode, c1, c2, opacity, op)
 
 @inline (op::CompositeOperation)(c1, c2; opacity=nothing, mode=BlendNormal) =
-    _blend(mode, c1, c2, opacity, op)
+    _blend_c(mode, c1, c2, opacity, op)
 
 """
-    blend(c1, c2; mode=BlendNormal, opacity=nothing, op=CompositeSourceOver)
+    blend(c1, c2; mode=BlendNormal, opacity=1, op=CompositeSourceOver)
+
+Create the mixed color of two colors `c1` and `c2`. The `c1` means the backdrop
+color and the `c2` means the source color.
+
+`mode` specifies the blend mode, e.g. [`BlendMultiply`](@ref).
+
+`opacity` modifies the source (i.e. `c2`-side) alpha by multiplication.
+
+`op` specifies the composite operations, e.g. [`CompositeSourceAtop`](@ref).
+
+The return type is the same as `c1`.
 """
 @inline blend(c1, c2; mode::BlendMode=BlendNormal, opacity=nothing, op=CompositeSourceOver) =
-    _blend(mode, c1, c2, opacity, op)
+    _blend_c(mode, c1, c2, opacity, op)
 
-# drop op kwarg
-@inline _blend(mode::BlendMode, c1::TransparentColor, c2, opacity, ::CompositeOperation{Symbol("source-over")}) =
-    _blend(mode, c1, c2, opacity)
 
-@inline _blend(mode::BlendMode, c1::Color, c2, opacity, ::DestAlphaFreeOperaions) =
-    _blend(mode, c1, c2, opacity)
+@inline _blend_c(mode::BlendMode, c1::Color, c2::Color, opacity, op) =
+    _blend_cc(mode, c1, convert(typeof(c1), c2), opacity, op)
+
+@inline _blend_c(mode::BlendMode, c1::Color, c2::TransparentColor, opacity, op) =
+    _blend_cc(mode, c1, convert(typeof(c1), color(c2)), mix_alpha(opacity, alpha(c2)), op)
+
+@inline _blend_c(mode::BlendMode, c1::TransparentColor, c2::Color, opacity, op) =
+    _blend_tc(mode, c1, convert(color_type(c1), c2), opacity, op)
+
+@inline _blend_c(mode::BlendMode, c1::TransparentColor, c2::TransparentColor, opacity, op) =
+    _blend_tc(mode, c1, convert(color_type(c1), color(c2)), mix_alpha(opacity, alpha(c2)), op)
+
 
 # without opacity
-@inline _blend(mode::BlendMode, c1, c2, ::Nothing) =
+@inline _blend_cc(mode::BlendMode, c1, c2, ::Nothing, ::CompositeOperation{Symbol("source-over")}) =
     _blend(mode, c1, c2)
 
-@inline _blend(mode::BlendMode, c1::C1, c2::C2, ::Nothing) where {C1 <: Color, C2 <: TransparentColor{<:C1}} =
-    _blend(BlendNormal, c1, _blend(mode, c1, color(c2)), alpha(c2))
+@inline function _blend_tc(mode::BlendMode, c1, c2, ::Nothing, op)
+    cm = mapc((v1, v2) -> _w(v1, v2, alpha(c1)), c2, _blend(mode, color(c1), c2))
+    _comp(op, c1, typeof(c1)(cm))
+end
+
 
 # with opacity
-@inline _blend(mode::BlendMode, c1::C, c2::C, opacity::Real) where C <: Color =
+@inline _blend_cc(mode::BlendMode, c1, c2, opacity::Real, ::CompositeOperation{Symbol("source-over")}) =
     mapc((v1, v2) -> _w(v1, v2, opacity), c1, _blend(mode, c1, c2))
 
-@inline _blend(mode::BlendMode, c1::C1, c2::C2, opacity::Real) where {C1 <: Color, C2 <: TransparentColor{<:C1}} =
-    _blend(BlendNormal, c1, _blend(mode, c1, color(c2)), alpha(c2) * opacity)
-
-@inline _blend(mode::BlendMode, c1::C1, c2::C2, opacity::Real) where {C1 <: Color, C2 <: Color} =
-    _blend(mode, c1, convert(C1, c2))
-
-
+@inline function _blend_tc(mode::BlendMode, c1, c2, opacity::Real, op)
+    cm = mapc((v1, v2) -> _w(v1, v2, alpha(c1)), c2, _blend(mode, color(c1), c2))
+    _comp(op, c1, typeof(c1)(cm, opacity))
+end
 
 
 _blend(::BlendMode{:normal}, c1::C, c2::C) where C <: Color = c2

@@ -1,6 +1,9 @@
 
 """
     BlendMode{mode}
+
+A type used for specifying the mixing mode of opaque colors. The `mode` should
+be a symbol.
 """
 struct BlendMode{mode} end
 
@@ -100,6 +103,9 @@ const BlendColorDodge = BlendMode{Symbol("color-dodge")}()
 
 The destination color is the result of dividing the complementary color of the
 backdrop color by the source color.
+
+ColorBlendModes uses the definition of W3C drafts as shown below. Note that
+there is a variant, which returns `0` when `Cb == 1` and `Csrc == 0`.
 ```
     if Cb == 1
         Cdest = 1
@@ -125,6 +131,7 @@ inverse of the [`overlay`](@ref BlendOverlay) mode.
     else
         Cdest = 1 - ((1 - Cb) × (1 - 2Csrc))
     end
+```
 """
 const BlendHardLight = BlendMode{Symbol("hard-light")}()
 
@@ -138,15 +145,15 @@ milder. This mode is also related to the [`overlay`](@ref BlendOverlay) mode.
 ColorBlendModes uses the definition of W3C drafts as shown below. Note that
 there are different definitions of the `soft-light`.
 ```
-    if Cs <= 0.5
-        Cdest = Cb - (1 - 2Cs) × Cb × (1 - Cb)
+    if Csrc <= 0.5
+        Cdest = Cb - (1 - 2Csrc) × Cb × (1 - Cb)
     else
         if Cb <= 0.25
             D = ((4Cb - 3) × Cb + 1) × 4Cb
         else
             D = sqrt(Cb)
         end
-        Cdest = Cb + (2Cs - 1) x (D - Cb)
+        Cdest = Cb + (2Csrc - 1) × (D - Cb)
     end
 ```
 """
@@ -237,17 +244,25 @@ const NonSeparableBlendMode = Union{
 
 """
     CompositeOperation{op}
+
+A type used for specifying the Porter-Duff operator, or the mode of generalized
+alpha compositing. The `op` should be a symbol.
 """
 struct CompositeOperation{op} end
 
 """
     CompositeSourceOver
+
+A basic Porter-Duff operator with the fractional terms `Fa = 1; Fb = 1 - αsrc`.
+This means the simple alpha compositing.
 """
 const CompositeSourceOver = CompositeOperation{Symbol("source-over")}()
 
 
 """
     CompositeSourceAtop
+
+A basic Porter-Duff operator with the fractional terms `Fa = αb; Fb = 1 - αsrc`.
 """
 const CompositeSourceAtop = CompositeOperation{Symbol("source-atop")}()
 

@@ -79,6 +79,18 @@ end
     @testset "RGB over RGB" begin
         test_rgb_over_rgb(BlendNormal, [c2 for c1 in rgb1_f64, c2 in rgb2_f64])
     end
+
+    @testset "RGBA over RGB" begin
+        @test BlendNormal(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(0.4, 0.6, 0.6)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendNormal(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0, 0.5, 1, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendNormal(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(2/7, 4/7, 5/7, 0.84)
+    end
 end
 
 @testset "multiply" begin
@@ -94,6 +106,18 @@ end
             RGB(0.0, 2.2250738585072014e-308, 0.24999999999999997)    RGB(0.49999999999999994,     0.5,                     0.4999999999999999)      RGB(0.9999999999999999,      0.7499999999999999,     0.9999999999999998)
             RGB(0.0, 2.2250738585072014e-308, 0.25)                   RGB(0.5,                     0.5000000000000001,      0.49999999999999994)     RGB(1.0,                     0.75,                   0.9999999999999999)
         ])
+    end
+
+    @testset "RGBA over RGB" begin
+        @test BlendMultiply(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(0.4, 0.525, 0.0)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendMultiply(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0, 0.425, 0.4, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendMultiply(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(2/7, 29/56, 2/7, 0.84)
     end
 end
 
@@ -111,6 +135,18 @@ end
             RGB(1.0,                 1.0,                 1.0)                RGB(1.0,   1.0,                1.0)                 RGB(1.0, 1.0,    1.0)
         ])
     end
+
+    @testset "RGBA over RGB" begin
+        @test BlendScreen(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(1.0, 0.825, 0.6)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendScreen(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.6, 0.725, 1.0, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendScreen(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(5/7, 41/56, 5/7, 0.84)
+    end
 end
 
 @testset "overlay" begin
@@ -126,6 +162,18 @@ end
             RGB(0.9999999999999998,    0.9999999999999998,      0.9999999999999998)      RGB(0.9999999999999999,      0.9999999999999999,     0.9999999999999999)      RGB(1.0,                    1.0,                    1.0)
             RGB(1.0,                   1.0,                     1.0)                     RGB(1.0,                     1.0,                    1.0)                     RGB(1.0,                    1.0,                    1.0)
         ])
+    end
+
+    @testset "RGBA over RGB" begin
+        @test BlendOverlay(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(1.0, 0.75, 0.0)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendOverlay(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.6, 0.65, 0.4, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendOverlay(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(5/7, 19/28, 2/7, 0.84)
     end
 end
 
@@ -143,6 +191,18 @@ end
             RGB(0.0, 2.2250738585072014e-308, 0.25)                    RGB(0.5,                     0.5000000000000001,      0.49999999999999994)     RGB(1.0,                     0.75,                    0.9999999999999999)
         ])
     end
+
+    @testset "RGBA over RGB" begin
+        @test BlendDarken(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(0.4, 0.6, 0.0)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendDarken(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.0, 0.5, 0.4, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendDarken(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(2/7, 4/7, 2/7, 0.84)
+    end
 end
 
 @testset "lighten" begin
@@ -158,6 +218,18 @@ end
             RGB(0.9999999999999999,      0.9999999999999999,      0.9999999999999999)  RGB(0.9999999999999999, 0.9999999999999999, 0.9999999999999999)  RGB(1.0, 0.9999999999999999, 0.9999999999999999)
             RGB(1.0,                     1.0,                     1.0)                 RGB(1.0,                1.0,                1.0)                 RGB(1.0, 1.0,                1.0)
         ])
+    end
+
+    @testset "RGBA over RGB" begin
+        @test BlendLighten(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(1.0, 0.75, 0.6)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendLighten(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.6, 0.65, 1.0, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendLighten(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(5/7, 19/28, 5/7, 0.84)
     end
 end
 
@@ -175,6 +247,18 @@ end
             RGB(1.0,                     1.0,                     1.0)                     RGB(1.0,                    1.0,                    1.0)                     RGB(1.0, 1.0,                    1.0)
         ])
     end
+
+    @testset "RGBA over RGB" begin
+        @test BlendColorDodge(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(1.0, 0.9, 0.0)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendColorDodge(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.6, 0.8, 0.4, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendColorDodge(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(5/7, 11/14, 2/7, 0.84)
+    end
 end
 
 @testset "color-burn" begin
@@ -190,6 +274,18 @@ end
             RGB(0.0, 0.0, 0.9999999999999996) RGB(0.9999999999999998,    0.9999999999999998,     0.9999999999999998)     RGB(0.9999999999999999,  0.9999999999999999,  0.9999999999999999)
             RGB(1.0, 1.0, 1.0)                RGB(1.0,                   1.0,                    1.0)                    RGB(1.0,                 1.0,                 1.0)
         ])
+    end
+
+    @testset "RGBA over RGB" begin
+        @test BlendColorBurn(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(1.0, 0.6, 0.0)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendColorBurn(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.6, 0.5, 0.4, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendColorBurn(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(5/7, 4/7, 2/7, 0.84)
     end
 end
 
@@ -207,6 +303,18 @@ end
             RGB(0.0, 4.450147717014403e-308,  0.5)                     RGB(1.0,                     1.0,                   0.9999999999999999)      RGB(1.0, 1.0,   1.0)
         ])
     end
+
+    @testset "RGBA over RGB" begin
+        @test BlendHardLight(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(0.4, 0.75, 0.6)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendHardLight(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.0, 0.65, 1.0, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendHardLight(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(2/7, 19/28, 5/7, 0.84)
+    end
 end
 
 @testset "soft-light" begin
@@ -222,6 +330,18 @@ end
             RGB(0.9999999999999998,  0.9999999999999998,  0.9999999999999999)      RGB(0.9999999999999999,      0.9999999999999999,     0.9999999999999999)      RGB(0.9999999999999999,     0.9999999999999999,     0.9999999999999999)
             RGB(1.0,                 1.0,                 1.0)                     RGB(1.0,                     1.0,                    1.0)                     RGB(1.0,                    1.0,                    1.0)
         ])
+    end
+
+    @testset "RGBA over RGB" begin
+        @test BlendSoftLight(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(1.0, 0.75, 0.0)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendSoftLight(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.6, 0.65, 0.4, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendSoftLight(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(5/7, 19/28, 2/7, 0.84)
     end
 end
 
@@ -239,6 +359,18 @@ end
             RGB(1.0,                     1.0,                     0.75)                RGB(0.5,                    0.4999999999999999,     0.5)                    RGB(0.0,                    0.25,                1.1102230246251565e-16)
         ])
     end
+
+    @testset "RGBA over RGB" begin
+        @test BlendDifference(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(1.0, 0.45, 0.6)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendDifference(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.6, 0.35, 1.0, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendDifference(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(5/7, 13/28, 5/7, 0.84)
+    end
 end
 
 @testset "exclusion" begin
@@ -254,6 +386,18 @@ end
             RGB(0.9999999999999999,      0.9999999999999999,      0.75)  RGB(0.5, 0.4999999999999999,  0.5)                 RGB(1.1102230246251565e-16, 0.25000000000000006, 2.2204460492503128e-16)
             RGB(1.0,                     1.0,                     0.75)  RGB(0.5, 0.4999999999999999,  0.5)                 RGB(0.0,                    0.25,                1.1102230246251565e-16)
         ])
+    end
+
+    @testset "RGBA over RGB" begin
+        @test BlendExclusion(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(1.0, 0.6, 0.6)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendExclusion(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.6, 0.5, 1.0, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendExclusion(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(5/7, 4/7, 5/7, 0.84)
     end
 end
 
@@ -271,6 +415,18 @@ end
             RGB(1.0,                     1.0,                     1.0)                     RGB(1.0,                     1.0,                     1.0)                     RGB(1.0,                     1.0,                     1.0)
         ])
     end
+
+    @testset "RGBA over RGB" begin
+        @test BlendHue(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(0.740, 0.770, 0.6) atol=0.0005
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendHue(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.340, 0.670, 1.0, 1) atol=0.0005
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendHue(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(0.529, 0.693, 5/7, 0.84) atol=0.0005
+    end
 end
 
 @testset "saturation" begin
@@ -286,6 +442,18 @@ end
             RGB(0.9999999999999999,      0.9999999999999999,      0.9999999999999999)      RGB(0.9999999999999999,      0.9999999999999999,      0.9999999999999999)      RGB(0.9999999999999999,      0.9999999999999999,      0.9999999999999999)
             RGB(1.0,                     1.0,                     1.0)                     RGB(1.0,                     1.0,                     1.0)                     RGB(1.0,                     1.0,                     1.0)
         ])
+    end
+
+    @testset "RGBA over RGB" begin
+        @test BlendSaturation(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(1.0, 0.75, 0.0)
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendSaturation(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.6, 0.65, 0.4, 1)
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendSaturation(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(5/7, 19/28, 2/7, 0.84)
     end
 end
 
@@ -303,6 +471,18 @@ end
             RGB(1.0,                1.0,                1.0)                     RGB(1.0,                     1.0,                    1.0)                 RGB(1.0,                    1.0,                 1.0)
         ])
     end
+
+    @testset "RGBA over RGB" begin
+        @test BlendColor(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(0.740, 0.770, 0.6) atol=0.0005
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendColor(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.340, 0.670, 1.0, 1) atol=0.0005
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendColor(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(0.529, 0.693, 5/7, 0.84) atol=0.0005
+    end
 end
 
 @testset "luminosity" begin
@@ -318,6 +498,18 @@ end
             RGB(0.0275, 0.0275, 0.0275) RGB(0.5000000000000001, 0.5000000000000001, 0.5000000000000001) RGB(0.8525, 0.8525, 0.8525)
             RGB(0.0275, 0.0275, 0.0275) RGB(0.5000000000000001, 0.5000000000000001, 0.5000000000000001) RGB(0.8525, 0.8525, 0.8525)
         ])
+    end
+
+    @testset "RGBA over RGB" begin
+        @test BlendLuminosity(RGB{Float64}(1, 0.75, 0), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGB{Float64}(0.727, 0.545, 0.0) atol=0.0005
+    end
+
+    @testset "RGB over RGBA" begin
+        @test BlendLuminosity(RGBA{Float64}(1, 0.75, 0, 0.6), RGB{Float64}(0, 0.5, 1)) ≈ RGBA{Float64}(0.327, 0.445, 0.4, 1) atol=0.0005
+    end
+
+    @testset "RGBA over RGBA" begin
+        @test BlendLuminosity(RGBA{Float64}(1, 0.75, 0, 0.6), RGBA{Float64}(0, 0.5, 1, 0.6)) ≈ RGBA{Float64}(0.519, 0.532, 2/7, 0.84) atol=0.0005
     end
 end
 
