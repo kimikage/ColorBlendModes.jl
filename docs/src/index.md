@@ -7,6 +7,7 @@ The behavior of this package is based on the CSS
 [Compositing and Blending Level 1](https://drafts.fxtf.org/compositing-1/).
 
 ## Basic usage
+For details of the API, see [Blending and Compositing](@ref).
 
 ```jldoctest
 julia> using ColorBlendModes, ColorTypes, FixedPointNumbers;
