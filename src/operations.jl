@@ -1,5 +1,9 @@
 
-mapca(fc, a, x::C, y::C) where C <: Transparent3 =
+mapca(fc, a, x::C, y::C) where C <: TransparentColorN{2} =
+    C(fc(comp1(x), comp1(y)), a)
+mapca(fc, a, x::C, y::C) where C <: TransparentColorN{3} =
+    C(fc(comp1(x), comp1(y)), fc(comp2(x), comp2(y)), a)
+mapca(fc, a, x::C, y::C) where C <: TransparentColorN{4} =
     C(fc(comp1(x), comp1(y)), fc(comp2(x), comp2(y)), fc(comp3(x), comp3(y)), a)
 
 # complement
@@ -14,13 +18,9 @@ function _comp(op::CompositeOperation{Symbol("source-over")}, c1, c2)
     k1 = mul(alpha(c1), _n(alpha(c2)))
     k2 = alpha(c2)
     a = k1 + k2
-    if a == zero(a)
-        mapc((v1, v2) -> a, c1, c2)
-    else
-        k1a = k1 / a
-        k2a = k2 / a
-        mapca((v1, v2) -> _w(v1, k1a, v2, k2a), a, c1, c2)
-    end
+    k1a = a == zero(a) ? a : k1 / a
+    k2a = a == zero(a) ? a : k2 / a
+    mapca((v1, v2) -> _w(v1, k1a, v2, k2a), a, c1, c2)
 end
 
 function _comp(op::CompositeOperation{Symbol("source-atop")}, c1, c2)

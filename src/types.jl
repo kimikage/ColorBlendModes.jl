@@ -1,4 +1,6 @@
 
+const TransparentColorN{N,C<:Color,T} = TransparentColor{C,T,N}
+
 """
     BlendMode{mode}
 
