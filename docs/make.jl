@@ -45,7 +45,7 @@ makedocs(
     clean = false,
     modules = [ColorBlendModes],
     format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true",
-                             assets = ["assets/mix.css"]),
+                             assets = ["assets/mix.css", "assets/favicon.ico"]),
     checkdocs = :exports,
     sitename = "ColorBlendModes",
     pages    = Any[
