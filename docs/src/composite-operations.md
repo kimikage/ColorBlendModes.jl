@@ -12,7 +12,7 @@ where:
 - `αo` is the output alpha
 - `αsrc` and `αb` are the source alpha and backdrop alpha
 - `Fa` and `Fb` are defined by the operator in use
-- `co` is the output color pre-multiplied with the output alpha `α0`
+- `co` is the output color pre-multiplied with the output alpha `αo`
 - `Csrc` and `Cb` are　the source color and backdrop color
 - `Co` is the output color
 
