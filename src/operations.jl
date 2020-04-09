@@ -309,7 +309,7 @@ function setsat(c::C, s) where C <: AbstractRGB
 end
 
 _blend(m::M, c1::C, c2::C) where {C <: Color, M <: NonSeparableBlendMode} =
-    convert(C, _belnd(m, convert(RGB, c1), convert(RGB, c2)))
+    convert(C, _blend(m, convert(RGB, c1), convert(RGB, c2)))
 
 function _blend(::BlendMode{:hue}, c1::C, c2::C) where C <: AbstractRGB
     setlum(setsat(c2, sat(c1)), lum100(c1))
