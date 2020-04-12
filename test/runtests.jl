@@ -122,4 +122,6 @@ end
     @test_throws ArgumentError parse(BlendMode, "SoftLight")
 
     @test parse(CompositeOperation, "source-over") === CompositeSourceOver
+    @test parse(CompositeOperation, "Source-Atop") === CompositeSourceAtop
+    @test_throws ArgumentError parse(CompositeOperation, "SourceAtop")
 end

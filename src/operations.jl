@@ -75,6 +75,12 @@ color and the `c2` means the source color.
 `op` specifies the composite operations, e.g. [`CompositeSourceAtop`](@ref).
 
 The return type is the same as `c1`.
+
+# Examples
+```jldoctest
+julia> blend(RGB(1, 0.5, 0), RGB(0, 0.5, 1), mode=BlendLighten)
+RGB{Float64}(1.0,0.5,1.0)
+```
 """
 @inline blend(c1, c2; mode::BlendMode=BlendNormal, opacity=nothing, op=CompositeSourceOver) =
     _blend_c(mode, c1, c2, opacity, op)
