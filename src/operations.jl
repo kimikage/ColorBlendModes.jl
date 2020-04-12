@@ -1,10 +1,20 @@
 
+mapch(f, x, y) = mapc(f, x, y)
+mapch(f, x::C, y::C) where C <: Union{HSV, HSL, HSI} =
+    C(f(Hue(x.h), Hue(y.h)), f(x.s, y.s), f(comp3(x), comp3(y)))
+mapch(f, x::C, y::C) where C <: Union{LCHab, LCHuv} =
+    C(f(x.l, y.l), f(x.c, y.c), f(Hue(x.h), Hue(y.h)))
+
 mapca(fc, a, x::C, y::C) where C <: TransparentColorN{2} =
     C(fc(comp1(x), comp1(y)), a)
 mapca(fc, a, x::C, y::C) where C <: TransparentColorN{3} =
     C(fc(comp1(x), comp1(y)), fc(comp2(x), comp2(y)), a)
 mapca(fc, a, x::C, y::C) where C <: TransparentColorN{4} =
     C(fc(comp1(x), comp1(y)), fc(comp2(x), comp2(y)), fc(comp3(x), comp3(y)), a)
+mapca(fc, a, x::C, y::C) where C <: TransparentColorN{4, <:Union{HSV, HSL, HSI}} =
+    C(fc(Hue(x.h), Hue(y.h)), fc(x.s, y.s), fc(comp3(x), comp3(y)), a)
+mapca(fc, a, x::C, y::C) where C <: TransparentColorN{4, <:Union{LCHab, LCHuv}} =
+    C(fc(x.l, y.l), fc(x.c, y.c), fc(Hue(x.h), Hue(y.h)))
 
 # complement
 _n(v::T) where T = oneunit(T) - v
@@ -12,19 +22,35 @@ _n(v::T) where T = oneunit(T) - v
 # linear interpolation
 _w(v1::T, v2::T, w) where T = convert(T, muladd(_n(w), v1, w * v2))
 
+function _w(h1::Hue{T}, h2::Hue{T}, w) where T
+    d0 = h2.angle - h1.angle
+    d = ifelse(abs(d0) > T(180), d0 - copysign(T(360), d0), d0)
+    a = muladd(d, w, h1.angle)
+    convert(T, ifelse(a > T(360), a - T(360), ifelse(a < T(0), a + T(360), a)))
+end
+
 _w(v1::T, w1, v2::T, w2) where T = convert(T, muladd(w1, v1, w2 * v2))
+
+function _w(h1::Hue{T}, w1, h2::Hue{T}, w2) where T
+    w = w1 + w2
+    w == oneunit(w) && return _w(h1, h2, w2)
+    w == zero(w) && return zero(T)
+    _w(h1, h2, w2 / w) * w
+end
 
 function _comp(op::CompositeOperation{Symbol("source-over")}, c1, c2)
     k1 = mul(alpha(c1), _n(alpha(c2)))
     k2 = alpha(c2)
     a = k1 + k2
     k1a = a == zero(a) ? a : k1 / a
-    k2a = a == zero(a) ? a : k2 / a
+    k2a = a == zero(a) ? a : oneunit(a) - k1a
     mapca((v1, v2) -> _w(v1, k1a, v2, k2a), a, c1, c2)
 end
 
 function _comp(op::CompositeOperation{Symbol("source-atop")}, c1, c2)
-    mapca((v1, v2) -> _w(v1, v2, alpha(c2)), alpha(c1), c1, c2)
+    a1, a2 = alpha(c1), alpha(c2)
+    k1a = a1 == zero(a1) ? a1 : _n(a2)
+    mapca((v1, v2) -> _w(v1, k1a, v2, a2), alpha(c1), c1, c2)
 end
 
 mix_alpha(opacity::Nothing, a) = a
@@ -72,24 +98,24 @@ The return type is the same as `c1`.
     _blend(mode, c1, c2)
 
 @inline function _blend_tc(mode::BlendMode, c1, c2, ::Nothing, op)
-    cm = mapc((v1, v2) -> _w(v1, v2, alpha(c1)), c2, _blend(mode, color(c1), c2))
+    cm = mapch((v1, v2) -> _w(v1, v2, alpha(c1)), c2, _blend(mode, color(c1), c2))
     _comp(op, c1, typeof(c1)(cm))
 end
 
 
 # with opacity
 @inline _blend_cc(mode::BlendMode, c1, c2, opacity::Real, ::CompositeOperation{Symbol("source-over")}) =
-    mapc((v1, v2) -> _w(v1, v2, opacity), c1, _blend(mode, c1, c2))
+    mapch((v1, v2) -> _w(v1, v2, opacity), c1, _blend(mode, c1, c2))
 
 @inline function _blend_tc(mode::BlendMode, c1, c2, opacity::Real, op)
-    cm = mapc((v1, v2) -> _w(v1, v2, alpha(c1)), c2, _blend(mode, color(c1), c2))
+    cm = mapch((v1, v2) -> _w(v1, v2, alpha(c1)), c2, _blend(mode, color(c1), c2))
     _comp(op, c1, typeof(c1)(cm, opacity))
 end
 
 
 _blend(::BlendMode{:normal}, c1::C, c2::C) where C <: Color = c2
 
-_blend(::BlendMode{:multiply}, c1::C, c2::C) where C <: Color = mapc(mul, c1, c2)
+_blend(::BlendMode{:multiply}, c1::C, c2::C) where C <: Color = mapch(mul, c1, c2)
 
 mul(v1, v2) = v1 * v2
 @fastmath function mul(v1::N, v2::N) where N <: Normed
@@ -121,7 +147,7 @@ function mul_lab(v1::T, v2::T) where T
 end
 
 _blend(::BlendMode{:screen}, c1::C, c2::C) where C <: Color =
-    mapc((v1, v2) -> _n(mul(_n(v1), _n(v2))), c1, c2)
+    mapch((v1, v2) -> _n(mul(_n(v1), _n(v2))), c1, c2)
 
 function _blend(::BlendMode{:screen}, c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}}
     l = muladd(T(100) - c1.l, (c2.l - T(100)) / T(100), T(100))
@@ -138,12 +164,12 @@ function _blend(::BlendMode{:overlay}, c1::C, c2::C) where {T, C <: Union{Lab{T}
     C(l, mul_lab(comp2(c1), comp2(c2)), mul_lab(comp3(c1), comp3(c2)))
 end
 
-_blend(::BlendMode{:darken}, c1::C, c2::C) where C <: Color = mapc(min, c1, c2)
+_blend(::BlendMode{:darken}, c1::C, c2::C) where C <: Color = mapch(min, c1, c2)
 
-_blend(::BlendMode{:lighten}, c1::C, c2::C) where C <: Color = mapc(max, c1, c2)
+_blend(::BlendMode{:lighten}, c1::C, c2::C) where C <: Color = mapch(max, c1, c2)
 
 _blend(::BlendMode{Symbol("color-dodge")}, c1::C, c2::C) where C <: Color =
-    mapc(dodge, c1, c2)
+    mapch(dodge, c1, c2)
 
 function dodge(v1, v2)
     v1 == zero(v1) && return v1
@@ -164,7 +190,7 @@ end
 end
 
 _blend(::BlendMode{Symbol("color-burn")}, c1::C, c2::C) where C <: Color =
-    mapc(burn, c1, c2)
+    mapch(burn, c1, c2)
 
 # Note that "color-burn" tends to cause the loss of significance.
 function burn(v1, v2)
@@ -189,7 +215,7 @@ end
 end
 
 _blend(::BlendMode{Symbol("hard-light")}, c1::C, c2::C) where C <: Color =
-    mapc(hardlight, c1, c2)
+    mapch(hardlight, c1, c2)
 
 function hardlight(v1, v2)
     v2r = min(v2, _n(v2))
@@ -201,7 +227,7 @@ _blend(::BlendMode{Symbol("hard-light")}, c1::C, c2::C) where {T, C <: Union{Lab
     _blend(BlendOverlay, c2, c1)
 
 _blend(::BlendMode{Symbol("soft-light")}, c1::C, c2::C) where C <: Color =
-    mapc(softlight, c1, c2)
+    mapch(softlight, c1, c2)
 
 function softlight(v1, v2)
     v2r = min(v2, _n(v2))
@@ -226,12 +252,12 @@ function _blend(::BlendMode{Symbol("soft-light")}, c1::C, c2::C) where {T, C <: 
 end
 
 _blend(::BlendMode{:difference}, c1::C, c2::C) where C <: Color =
-    mapc(difference, c1, c2)
+    mapch(difference, c1, c2)
 
 difference(v1, v2) = max(v1, v2) - min(v1, v2)
 
 _blend(::BlendMode{:exclusion}, c1::C, c2::C) where C <: Color =
-    mapc(exclusion, c1, c2)
+    mapch(exclusion, c1, c2)
 
 function exclusion(v1, v2)
     m = mul(v1, v2)
@@ -361,6 +387,9 @@ function _blend(::BlendMode{:hue}, c1::C, c2::C) where C <: Union{Lab, Luv}
     C(c1.l, a, b)
 end
 
+_blend(::BlendMode{:hue}, c1::C, c2::C) where C <: Union{HSV, HSL, HSI} =
+    C(c2.h, c1.s, comp3(c1))
+
 _blend(::BlendMode{:saturation}, c1::C, c2::C) where C <: AbstractRGB =
     setlum(setsat(c1, sat(c2)), lum100(c1))
 
@@ -375,11 +404,17 @@ function _blend(::BlendMode{:saturation}, c1::C, c2::C) where C <: Union{Lab, Lu
     C(c1.l, a, b)
 end
 
+_blend(::BlendMode{:saturation}, c1::C, c2::C) where C <: Union{HSV, HSL, HSI} =
+    C(c1.h, c2.s, comp3(c1))
+
 _blend(::BlendMode{:color}, c1::C, c2::C) where C <: AbstractRGB =
     setlum(c2, lum100(c1))
 
 _blend(::BlendMode{:color}, c1::C, c2::C) where C <: Union{Lab, Luv} =
     C(c1.l, comp2(c2), comp3(c2))
+
+_blend(::BlendMode{:color}, c1::C, c2::C) where C <: Union{HSV, HSL, HSI} =
+    C(c2.h, c2.s, comp3(c1))
 
 _blend(::BlendMode{:luminosity}, c1::C, c2::C) where C <: AbstractRGB =
     setlum(c1, lum100(c2))
@@ -388,3 +423,5 @@ _blend(::BlendMode{:luminosity}, c1::C, c2::C) where C <: AbstractRGB =
 _blend(::BlendMode{:luminosity}, c1::C, c2::C) where C <: Union{Lab, Luv} =
     C(c2.l, comp2(c1), comp3(c1))
 
+_blend(::BlendMode{:luminosity}, c1::C, c2::C) where C <: Union{HSV, HSL, HSI} =
+    C(c1.h, c1.s, comp3(c2))

@@ -1,6 +1,10 @@
 
 const TransparentColorN{N,C<:Color,T} = TransparentColor{C,T,N}
 
+struct Hue{T<:Real}
+    angle::T
+end
+
 """
     BlendMode{mode}
 
