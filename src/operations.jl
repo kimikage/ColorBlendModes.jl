@@ -5,6 +5,9 @@ mapch(f, x::C, y::C) where C <: Union{HSV, HSL, HSI} =
 mapch(f, x::C, y::C) where C <: Union{LCHab, LCHuv} =
     C(f(x.l, y.l), f(x.c, y.c), f(Hue(x.h), Hue(y.h)))
 
+mapca(fc, a, x::C) where C <: TransparentColorN{2} = C(fc(comp1(x)), a)
+mapca(fc, a, x::C) where C <: TransparentColorN{3} = C(fc(comp1(x)), fc(comp2(x)), a)
+mapca(fc, a, x::C) where C <: TransparentColorN{4} = C(fc(comp1(x)), fc(comp2(x)), fc(comp3(x)), a)
 mapca(fc, a, x::C, y::C) where C <: TransparentColorN{2} =
     C(fc(comp1(x), comp1(y)), a)
 mapca(fc, a, x::C, y::C) where C <: TransparentColorN{3} =
@@ -38,6 +41,17 @@ function _w(h1::Hue{T}, w1, h2::Hue{T}, w2) where T
     _w(h1, h2, w2 / w) * w
 end
 
+_w_safe(v1::T, w1, v2::T, w2) where T = min(oneunit(T), _w(v1, w1, v2, w2))
+_w_safe(v1::T, w1, v2::T, w2) where T <: FixedPoint =
+    convert(T, min(float(typemax(T)), muladd(w1, float(v1), w2 * float(v2))))
+
+_comp(op::CompositeOperation{:clear}, c1, c2) =
+    mapc(v1 -> zero(v1), c1)
+
+_comp(op::CompositeOperation{:copy}, c1, c2) = c2
+
+_comp(op::CompositeOperation{:destination}, c1, c2) = c1
+
 function _comp(op::CompositeOperation{Symbol("source-over")}, c1, c2)
     k1 = mul(alpha(c1), _n(alpha(c2)))
     k2 = alpha(c2)
@@ -47,10 +61,52 @@ function _comp(op::CompositeOperation{Symbol("source-over")}, c1, c2)
     mapca((v1, v2) -> _w(v1, k1a, v2, k2a), a, c1, c2)
 end
 
+_comp(op::CompositeOperation{Symbol("destination-over")}, c1, c2) =
+    _comp(CompositeSourceOver, c2, c1)
+
+function _comp(op::CompositeOperation{Symbol("source-in")}, c1, c2)
+    a = mul(alpha(c1), alpha(c2))
+    ifelse(a == zero(a), mapca(v -> a, a, c2), mapca(v -> v, a, c2))
+end
+
+_comp(op::CompositeOperation{Symbol("destination-in")}, c1, c2) =
+    _comp(CompositeSourceIn, c2, c1)
+
+function _comp(op::CompositeOperation{Symbol("source-out")}, c1, c2)
+    a = mul(_n(alpha(c1)), alpha(c2))
+    ifelse(a == zero(a), mapca(v -> a, a, c2), mapca(v -> v, a, c2))
+end
+
+_comp(op::CompositeOperation{Symbol("destination-out")}, c1, c2) =
+    _comp(CompositeSourceOut, c2, c1)
+
 function _comp(op::CompositeOperation{Symbol("source-atop")}, c1, c2)
     a1, a2 = alpha(c1), alpha(c2)
     k1a = a1 == zero(a1) ? a1 : _n(a2)
-    mapca((v1, v2) -> _w(v1, k1a, v2, a2), alpha(c1), c1, c2)
+    k2a = a1 == zero(a1) ? a1 : a2
+    mapca((v1, v2) -> _w(v1, k1a, v2, k2a), a1, c1, c2)
+end
+
+_comp(op::CompositeOperation{Symbol("destination-atop")}, c1, c2) =
+    _comp(CompositeSourceAtop, c2, c1)
+
+function _comp(op::CompositeOperation{:xor}, c1, c2)
+    m = mul(alpha(c1), alpha(c2))
+    k1, k2 = alpha(c1) - m, alpha(c2) - m
+    a = k1 + k2
+    k1a = a == zero(a) ? a : k1 / a
+    k2a = a == zero(a) ? a : oneunit(a) - k1a
+    mapca((v1, v2) -> _w(v1, k1a, v2, k2a), a, c1, c2)
+end
+
+function _comp(op::CompositeOperation{:lighter}, c1, c2)
+    T = eltype(c1)
+    k1, k2 = float(alpha(c1)), float(alpha(c2))
+    a = k1 + k2
+    ac = min(oneunit(a), a)
+    k1a = a == zero(a) ? a : k1 / ac
+    k2a = a == zero(a) ? a : k2 / ac
+    mapca((v1, v2) -> _w_safe(v1, k1a, v2, k2a), ac, c1, c2)
 end
 
 mix_alpha(opacity::Nothing, a) = a

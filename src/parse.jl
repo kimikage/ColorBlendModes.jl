@@ -51,8 +51,19 @@ function Base.parse(::Type{BlendMode}, keyword::AbstractString)
 end
 
 const op_keywords = [
+    "clear",
+    "copy",
+    "destination",
     "source-over",
+    "destination-over",
+    "source-in",
+    "destination-in",
+    "source-out",
+    "destination-out",
     "source-atop",
+    "destination-atop",
+    "xor",
+    "lighter",
 ]
 
 function Base.parse(::Type{CompositeOperation}, keyword::AbstractString)

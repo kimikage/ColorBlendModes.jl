@@ -23,8 +23,19 @@ export BlendMode,
        BlendColor,
        BlendLuminosity
 export CompositeOperation,
+       CompositeClear,
+       CompositeCopy,
+       CompositeDestination,
        CompositeSourceOver,
-       CompositeSourceAtop
+       CompositeDestinationOver,
+       CompositeSourceIn,
+       CompositeDestinationIn,
+       CompositeSourceOut,
+       CompositeDestinationOut,
+       CompositeSourceAtop,
+       CompositeDestinationAtop,
+       CompositeXor,
+       CompositeLighter
 export blend, keyword
 
 include("types.jl")

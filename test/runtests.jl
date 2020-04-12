@@ -109,6 +109,10 @@ end
     include("blend_hsx.jl")
 end
 
+@testset "composite" begin
+    include("composite.jl")
+end
+
 @testset "keyword" begin
     @test keyword(BlendNormal) == "normal"
     @test keyword(BlendColorDodge) == "color-dodge"
