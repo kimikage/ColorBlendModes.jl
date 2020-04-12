@@ -108,11 +108,35 @@ function mul(v1::N0f16, v2::N0f16)
     reinterpret(N0f16, unsafe_trunc(UInt16, z >> 0x10))
 end
 
+function _blend(::BlendMode{:multiply}, c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}}
+    l = c1.l * c2.l / T(100)
+    C(l, mul_lab(comp2(c1), comp2(c2)), mul_lab(comp3(c1), comp3(c2)))
+end
+
+function mul_lab(v1::T, v2::T) where T
+    t, s = T(128), T(1/128)
+    v1r = min(t - v1, t + v1)
+    v2r = t - flipsign(v2, v1)
+    flipsign(muladd(v1r, -s * v2r, t), v1)
+end
+
 _blend(::BlendMode{:screen}, c1::C, c2::C) where C <: Color =
     mapc((v1, v2) -> _n(mul(_n(v1), _n(v2))), c1, c2)
 
+function _blend(::BlendMode{:screen}, c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}}
+    l = muladd(T(100) - c1.l, (c2.l - T(100)) / T(100), T(100))
+    C(l, mul_lab(comp2(c1), comp2(c2)), mul_lab(comp3(c1), comp3(c2)))
+end
+
 _blend(::BlendMode{:overlay}, c1::C, c2::C) where C <: Color =
     _blend(BlendHardLight, c2, c1)
+
+function _blend(::BlendMode{:overlay}, c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}}
+    l1r = min(c1.l, T(100) - c1.l)
+    mr = (l1r + l1r) * ifelse(c1.l == l1r, c2.l, T(100) - c2.l) / T(100)
+    l = ifelse(c1.l == l1r, mr, T(100) - mr)
+    C(l, mul_lab(comp2(c1), comp2(c2)), mul_lab(comp3(c1), comp3(c2)))
+end
 
 _blend(::BlendMode{:darken}, c1::C, c2::C) where C <: Color = mapc(min, c1, c2)
 
@@ -173,6 +197,9 @@ function hardlight(v1, v2)
     ifelse(v2 == v2r, mr, _n(mr))
 end
 
+_blend(::BlendMode{Symbol("hard-light")}, c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}} =
+    _blend(BlendOverlay, c2, c1)
+
 _blend(::BlendMode{Symbol("soft-light")}, c1::C, c2::C) where C <: Color =
     mapc(softlight, c1, c2)
 
@@ -188,6 +215,15 @@ function softlight(v1, v2)
     end
 end
 softlight(v1::X, v2::X) where X <: FixedPoint = softlight(float(v1), float(v2)) % X
+
+function _blend(::BlendMode{Symbol("soft-light")}, c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}}
+    l = softlight(c1.l / T(100), c2.l / T(100))
+    a = softlight(muladd(comp2(c1), T(1/256), T(0.5)),
+                  muladd(comp2(c2), T(1/256), T(0.5)))
+    b = softlight(muladd(comp3(c1), T(1/256), T(0.5)),
+                  muladd(comp3(c2), T(1/256), T(0.5)))
+    C(l * T(100), muladd(a, T(256), T(-128)) , muladd(b, T(256), T(-128)))
+end
 
 _blend(::BlendMode{:difference}, c1::C, c2::C) where C <: Color =
     mapc(difference, c1, c2)
@@ -311,18 +347,44 @@ end
 _blend(m::M, c1::C, c2::C) where {C <: Color, M <: NonSeparableBlendMode} =
     convert(C, _blend(m, convert(RGB, c1), convert(RGB, c2)))
 
-function _blend(::BlendMode{:hue}, c1::C, c2::C) where C <: AbstractRGB
+_blend(::BlendMode{:hue}, c1::C, c2::C) where C <: AbstractRGB =
     setlum(setsat(c2, sat(c1)), lum100(c1))
+
+function _blend(::BlendMode{:hue}, c1::C, c2::C) where C <: Union{Lab, Luv}
+    if abs(comp2(c2)) >= abs(comp3(c2))
+        a = copysign(max(abs(comp2(c1)), abs(comp3(c1))), comp2(c2))
+        b = ifelse(a == zero(a), a, a * comp3(c2) / comp2(c2))
+    else
+        b = copysign(max(abs(comp2(c1)), abs(comp3(c1))), comp3(c2))
+        a = ifelse(b == zero(b), b, b * comp2(c2) / comp3(c2))
+    end
+    C(c1.l, a, b)
 end
 
-function _blend(::BlendMode{:saturation}, c1::C, c2::C) where C <: AbstractRGB
+_blend(::BlendMode{:saturation}, c1::C, c2::C) where C <: AbstractRGB =
     setlum(setsat(c1, sat(c2)), lum100(c1))
+
+function _blend(::BlendMode{:saturation}, c1::C, c2::C) where C <: Union{Lab, Luv}
+    if abs(comp2(c1)) >= abs(comp3(c1))
+        a = copysign(max(abs(comp2(c2)), abs(comp3(c2))), comp2(c1))
+        b = ifelse(a == zero(a), a, a * comp3(c1) / comp2(c1))
+    else
+        b = copysign(max(abs(comp2(c2)), abs(comp3(c2))), comp3(c1))
+        a = ifelse(b == zero(b), b, b * comp2(c1) / comp3(c1))
+    end
+    C(c1.l, a, b)
 end
 
-function _blend(::BlendMode{:color}, c1::C, c2::C) where C <: AbstractRGB
+_blend(::BlendMode{:color}, c1::C, c2::C) where C <: AbstractRGB =
     setlum(c2, lum100(c1))
-end
 
-function _blend(::BlendMode{:luminosity}, c1::C, c2::C) where C <: AbstractRGB
+_blend(::BlendMode{:color}, c1::C, c2::C) where C <: Union{Lab, Luv} =
+    C(c1.l, comp2(c2), comp3(c2))
+
+_blend(::BlendMode{:luminosity}, c1::C, c2::C) where C <: AbstractRGB =
     setlum(c1, lum100(c2))
-end
+
+
+_blend(::BlendMode{:luminosity}, c1::C, c2::C) where C <: Union{Lab, Luv} =
+    C(c2.l, comp2(c1), comp3(c1))
+
