@@ -7,8 +7,8 @@ latter images are the results with the CSS.
 ## normal
 ```@example ex
 using ColorBlendModes # hide
-using Main: CompositingExamples # hide
-CompositingExamples.generate(BlendNormal) # hide
+using Main.CompositingExamples # hide
+generate(BlendNormal) # hide
 ```
 ![normal](assets/normal.png)
 ```@raw html
@@ -21,7 +21,7 @@ BlendNormal
 
 ## multiply
 ```@example ex
-CompositingExamples.generate(BlendMultiply) # hide
+generate(BlendMultiply) # hide
 ```
 ![multiply](assets/multiply.png)
 ```@raw html
@@ -32,7 +32,7 @@ BlendMultiply
 ```
 ## screen
 ```@example ex
-CompositingExamples.generate(BlendScreen) # hide
+generate(BlendScreen) # hide
 ```
 ![screen](assets/screen.png)
 ```@raw html
@@ -44,7 +44,7 @@ BlendScreen
 
 ## overlay
 ```@example ex
-CompositingExamples.generate(BlendOverlay) # hide
+generate(BlendOverlay) # hide
 ```
 ![overlay](assets/overlay.png)
 ```@raw html
@@ -56,7 +56,7 @@ BlendOverlay
 
 ## darken
 ```@example ex
-CompositingExamples.generate(BlendDarken) # hide
+generate(BlendDarken) # hide
 ```
 ![darken](assets/darken.png)
 ```@raw html
@@ -68,7 +68,7 @@ BlendDarken
 
 ## lighten
 ```@example ex
-CompositingExamples.generate(BlendLighten) # hide
+generate(BlendLighten) # hide
 ```
 ![lighten](assets/lighten.png)
 ```@raw html
@@ -80,7 +80,7 @@ BlendLighten
 
 ## color-dodge
 ```@example ex
-CompositingExamples.generate(BlendColorDodge) # hide
+generate(BlendColorDodge) # hide
 ```
 ![color-dodge](assets/color-dodge.png)
 ```@raw html
@@ -92,7 +92,7 @@ BlendColorDodge
 
 ## color-burn
 ```@example ex
-CompositingExamples.generate(BlendColorBurn) # hide
+generate(BlendColorBurn) # hide
 ```
 ![color-burn](assets/color-burn.png)
 ```@raw html
@@ -104,7 +104,7 @@ BlendColorBurn
 
 ## hard-light
 ```@example ex
-CompositingExamples.generate(BlendHardLight) # hide
+generate(BlendHardLight) # hide
 ```
 ![hard-light](assets/hard-light.png)
 ```@raw html
@@ -116,7 +116,7 @@ BlendHardLight
 
 ## soft-light
 ```@example ex
-CompositingExamples.generate(BlendSoftLight) # hide
+generate(BlendSoftLight) # hide
 ```
 ![soft-light](assets/soft-light.png)
 ```@raw html
@@ -127,7 +127,7 @@ BlendSoftLight
 ```
 ## difference
 ```@example ex
-CompositingExamples.generate(BlendDifference) # hide
+generate(BlendDifference) # hide
 ```
 ![difference](assets/difference.png)
 ```@raw html
@@ -138,7 +138,7 @@ BlendDifference
 ```
 ## exclusion
 ```@example ex
-CompositingExamples.generate(BlendExclusion) # hide
+generate(BlendExclusion) # hide
 ```
 ![exclusion](assets/exclusion.png)
 ```@raw html
@@ -149,7 +149,7 @@ BlendExclusion
 ```
 ## hue
 ```@example ex
-CompositingExamples.generate(BlendHue) # hide
+generate(BlendHue) # hide
 ```
 ![hue](assets/hue.png)
 ```@raw html
@@ -160,7 +160,7 @@ BlendHue
 ```
 ## saturation
 ```@example ex
-CompositingExamples.generate(BlendSaturation) # hide
+generate(BlendSaturation) # hide
 ```
 ![saturation](assets/saturation.png)
 ```@raw html
@@ -171,7 +171,7 @@ BlendSaturation
 ```
 ## color
 ```@example ex
-CompositingExamples.generate(BlendColor) # hide
+generate(BlendColor) # hide
 ```
 ![color](assets/color.png)
 ```@raw html
@@ -182,7 +182,7 @@ BlendColor
 ```
 ## luminosity
 ```@example ex
-CompositingExamples.generate(BlendLuminosity) # hide
+generate(BlendLuminosity) # hide
 ```
 ![luminosity](assets/luminosity.png)
 ```@raw html

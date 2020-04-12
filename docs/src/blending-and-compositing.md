@@ -26,16 +26,11 @@ the specified blend mode and composite operation.
 ```@docs
 blend
 ```
-For example:
-```jldoctest ex; setup = :(using ColorBlendModes, ColorTypes, FixedPointNumbers;)
-julia> blend(RGB(1, 0.5, 0), RGB(0, 0.5, 1), mode=BlendLighten)
-RGB{Float64}(1.0,0.5,1.0)
-```
 
 ### Broadcasting
 The [`blend`](@ref) function is compatible with the broadcasting. Therefore,
 you can blend two images with the same size.
-```jldoctest ex
+```jldoctest ex; setup = :(using ColorBlendModes, ColorTypes, FixedPointNumbers;)
 julia> image1 = [RGB(r, 1, b) for r=0:1, b=0:1]
 2×2 Array{RGB{N0f8},2} with eltype RGB{Normed{UInt8,8}}:
  RGB{N0f8}(0.0,1.0,0.0)  RGB{N0f8}(0.0,1.0,1.0)
@@ -62,12 +57,14 @@ The following are examples where an image of green triangles (`image_green`) is
 layered on an image of blue triangles (`image_blue`).
 ```@example ex
 using ColorBlendModes # hide
-using Main: CompositingExamples # hide
-image_blue, image_green = [],[] # hide
+using Main.CompositingExamples # hide
+image_green = load("green.png")
+image_blue  = load("blue.png")
+
 for mode in (BlendNormal, BlendMultiply, BlendScreen)
     for opacity in (25, 50, 75, 100)
-        blend.(image_blue, image_green, mode=mode, opacity=opacity/100)
-        CompositingExamples.generate(mode, opacity) # hide
+        out = blend.(image_blue, image_green, mode=mode, opacity=opacity/100)
+        save(keyword(mode) * "_" * string(opacity) * ".png", out)
     end
 end
 ```

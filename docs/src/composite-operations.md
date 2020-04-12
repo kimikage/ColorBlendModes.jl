@@ -29,8 +29,8 @@ The following two images are used as examples below.
 ## source-over
 ```@example ex
 using ColorBlendModes # hide
-using Main: CompositingExamples # hide
-CompositingExamples.generate(CompositeSourceOver, BlendNormal) # hide
+using Main.CompositingExamples # hide
+generate(CompositeSourceOver, BlendNormal) # hide
 ```
 | Result | SVG |
 |:------:|:---:|
@@ -42,7 +42,7 @@ CompositeSourceOver
 
 ## source-atop
 ```@example ex
-CompositingExamples.generate(CompositeSourceAtop, BlendNormal) # hide
+generate(CompositeSourceAtop, BlendNormal) # hide
 ```
 | Result | SVG |
 |:------:|:---:|

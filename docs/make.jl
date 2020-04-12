@@ -3,9 +3,12 @@ using Documenter, ColorBlendModes
 module CompositingExamples
     using ColorBlendModes, PNGFiles
 
+    export load, save # just for examples
+    export generate
+
     images = Dict{String, AbstractMatrix}()
 
-    function load_image(filename)
+    function load(filename)
         img = get(images, filename, nothing)
         if img === nothing
             img = PNGFiles.load(joinpath("assets", filename))
@@ -14,32 +17,30 @@ module CompositingExamples
         img
     end
 
-    function generate(bm::BlendMode)
-        grad_256  = load_image("grad_256.png")
-        juliadots = load_image("juliadots.png")
-        wave_256  = load_image("wave_256.png")
-
-        out = bm.(bm.(grad_256, juliadots), wave_256, opacity=0.4)
-        PNGFiles.save(joinpath("assets", keyword(bm) * ".png"), out)
+    function save(filename, image)
+        PNGFiles.save(joinpath("assets", filename), image)
         nothing
     end
 
-    function generate(bm::BlendMode, opacity::Int)
-        blue  = load_image("blue.png")
-        green = load_image("green.png")
-        out = blend.(blue, green, mode=bm, opacity=opacity/100)
-        PNGFiles.save(joinpath("assets", keyword(bm) * "_" * string(opacity) * ".png"), out)
-        nothing
+    function generate(bm::BlendMode)
+        grad_256  = load("grad_256.png")
+        juliadots = load("juliadots.png")
+        wave_256  = load("wave_256.png")
+        out = bm.(bm.(grad_256, juliadots), wave_256, opacity=0.4)
+        save(keyword(bm) * ".png", out)
     end
 
     function generate(op::CompositeOperation, bm::BlendMode)
-        blue  = load_image("blue.png")
-        green = load_image("green.png")
+        blue  = load("blue.png")
+        green = load("green.png")
         out = blend.(blue, green, mode=bm, op=op)
-        PNGFiles.save(joinpath("assets", keyword(op) * "_" * keyword(bm) * ".png"), out)
-        nothing
+        save(keyword(op) * "_" * keyword(bm) * ".png", out)
     end
 end
+
+DocMeta.setdocmeta!(ColorBlendModes, :DocTestSetup,
+                    :(using ColorBlendModes, ColorTypes, FixedPointNumbers);
+                    recursive=true)
 
 makedocs(
     clean = false,
@@ -53,6 +54,8 @@ makedocs(
         "Blending and Compositing" => "blending-and-compositing.md",
         "Blend Modes" => "blend-modes.md",
         "Composite Operations" => "composite-operations.md",
+        "Color Space Dependence" => "color-space-dependence.md",
+        "Utility Functions" => "utility-functions.md",
         "Index" => "function-index.md",
         ]
     )
