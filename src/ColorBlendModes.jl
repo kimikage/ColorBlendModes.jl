@@ -5,38 +5,21 @@ using ColorTypes
 
 import Base: parse
 
-export BlendMode,
-       BlendNormal,
-       BlendMultiply,
-       BlendScreen,
-       BlendOverlay,
-       BlendDarken,
-       BlendLighten,
-       BlendColorDodge,
-       BlendColorBurn,
-       BlendHardLight,
-       BlendSoftLight,
-       BlendDifference,
-       BlendExclusion,
-       BlendHue,
-       BlendSaturation,
-       BlendColor,
-       BlendLuminosity
-export CompositeOperation,
-       CompositeClear,
-       CompositeCopy,
-       CompositeDestination,
-       CompositeSourceOver,
-       CompositeDestinationOver,
-       CompositeSourceIn,
-       CompositeDestinationIn,
-       CompositeSourceOut,
-       CompositeDestinationOut,
-       CompositeSourceAtop,
-       CompositeDestinationAtop,
-       CompositeXor,
-       CompositeLighter
 export blend, keyword
+
+include("blendmodes.jl")
+include("compositeoperations.jl")
+
+using .BlendModes
+using .CompositeOperations
+
+# re-export
+for name in names(ColorBlendModes.BlendModes)
+    @eval export $name
+end
+for name in names(ColorBlendModes.CompositeOperations)
+    @eval export $name
+end
 
 include("types.jl")
 include("traits.jl")

@@ -2,7 +2,11 @@ using Test
 using ColorBlendModes
 using ColorTypes, FixedPointNumbers
 
-@test isempty(detect_ambiguities(ColorBlendModes, Base, Core))
+if VERSION >= v"1.6.0-DEV.816" # JuliaLang/julia PR #36962
+    @test isempty(detect_ambiguities(ColorBlendModes))
+else
+    @test isempty(detect_ambiguities(ColorBlendModes, Base, Core))
+end
 
 const blend_modes = map(k -> parse(BlendMode, k), ColorBlendModes.mode_keywords)
 const separable_modes = filter(m -> m isa ColorBlendModes.SeparableBlendMode, blend_modes)

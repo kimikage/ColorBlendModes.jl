@@ -105,3 +105,27 @@ RGBA{Float64}(0.75,0.5,0.125,0.5)
 However, it is not recommended to call the predefined constants directly, e.g.
 `BlendMultiply(c1, c2)`. They are should be called via method arguments or local
 variables.
+
+## Avoiding name clashes
+The main function of this package, [`blend`](@ref), is a generic word and is
+therefore at risk of name clashes. The [`BlendMode`](@ref),
+[`CompositeOperation`](@ref) and their singleton instances are defined in
+sub-modules called `BlendModes` and `CompositeOperations`, and hence you can
+introduce the set of definitions optionally. Note the presence of the plural `s`
+at the end.
+
+```jldoctest
+julia> blend(a, b) = (a + b) / 2;
+
+julia> using ColorTypes;
+
+julia> import ColorBlendModes; # instead of `using`
+
+julia> using ColorBlendModes.BlendModes, ColorBlendModes.CompositeOperations;
+
+julia> blend(0, 1) # does not clash
+0.5
+
+julia> ColorBlendModes.blend(Gray(1), Gray(0), mode=BlendLighten, op=CompositeSourceOver)
+Gray{N0f8}(1.0)
+```
