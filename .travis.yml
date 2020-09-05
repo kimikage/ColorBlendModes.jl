@@ -5,7 +5,7 @@ os:
     - windows
 julia:
     - 1.0
-    - 1.4 # explicitly specify 1.4 instead of 1 as a workaround
+    - 1
     - nightly
 notifications:
     email: false
