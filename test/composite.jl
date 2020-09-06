@@ -60,3 +60,51 @@
         @test CompositeLighter(RGBA{T}(1, 0.75, 0, 1), RGBA{T}(0, 0.5, 1, 0.6)) ≈ RGBA{T}(1, 1, 0.6, 1)
     end
 end
+
+@testset "composite: opaque RGBs" begin
+    c1, c2 = RGB{Float32}(1, 0.75, 0), RGB{Float64}(0, 0.5, 1)
+    t1, t2 = ARGB(c1), ARGB(c2)
+    m = BlendLuminosity
+    @testset "$(keyword(op))" for op in (CompositeCopy,
+                                         CompositeDestination,
+                                         CompositeSourceOver,
+                                         CompositeDestinationOver,
+                                         CompositeSourceIn,
+                                         CompositeDestinationIn,
+                                         CompositeSourceAtop,
+                                         CompositeDestinationAtop,
+                                         CompositeLighter)
+        @test ARGB(op(c1, c2, mode=m)) === op(t1, t2, mode=m)
+    end
+    @testset "$(keyword(op))" for op in (CompositeClear,
+                                         CompositeSourceOut,
+                                         CompositeDestinationOut,
+                                         CompositeXor)
+        @test_throws MethodError op(c1, c2, mode=m)
+    end
+end
+
+@testset "composite: RGB over opaque RGB" begin
+    c1, c2 = RGB{Float32}(1, 0.75, 0), RGB{Float64}(0, 0.5, 1)
+    t1, t2 = ARGB(c1), ARGB(c2, 0.25)
+    m = BlendLuminosity
+    @testset "$(keyword(op))" for op in (CompositeDestination,
+                                         CompositeSourceOver,
+                                         CompositeDestinationOver,
+                                         CompositeSourceAtop,
+                                         CompositeLighter)
+        c = op(c1, c2, opacity=0.25, mode=m)
+        @test ARGB(c) === ARGB(op(c1, t2, mode=m)) === op(t1, t2, mode=m)
+    end
+    @testset "$(keyword(op))" for op in (CompositeClear,
+                                         CompositeCopy,
+                                         CompositeSourceIn,
+                                         CompositeDestinationIn,
+                                         CompositeSourceOut,
+                                         CompositeDestinationOut,
+                                         CompositeDestinationAtop,
+                                         CompositeXor)
+        @test_throws MethodError op(c1, c2, opacity=0.25, mode=m)
+        @test_throws MethodError op(c1, t2, mode=m)
+    end
+end

@@ -34,3 +34,17 @@ const NonSeparableBlendMode = Union{
     BlendMode{:color},
     BlendMode{:luminosity},
 }
+
+const OpaqueInSourceOutOperation = Union{
+    typeof(CompositeCopy),
+    typeof(CompositeSourceOver),
+    typeof(CompositeSourceIn),
+    typeof(CompositeSourceAtop),
+}
+
+const OpaqueInDestinationOutOperation = Union{
+    typeof(CompositeDestination),
+    typeof(CompositeDestinationOver),
+    typeof(CompositeDestinationIn),
+    typeof(CompositeDestinationAtop),
+}
