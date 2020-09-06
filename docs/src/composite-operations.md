@@ -182,3 +182,11 @@ generate(CompositeLighter, BlendNormal) # hide
 ```@docs
 CompositeLighter
 ```
+
+!!! warning
+    If and only if `αo` is constant `1`, you can specify an opaque `Color` to
+    the backdrop, i.e. the first argument of [`blend`](@ref). For example,
+    [`CompositeSourceOver`](@ref) can be used with opaque backdrops, since
+    `αo` is `1` regardless of `αsrc`. In contrast, [`CompositeSourceOut`](@ref)
+    cannot be used with opaque backdrops because the output will be transparent,
+    resulting in an error.

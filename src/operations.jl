@@ -97,7 +97,6 @@ function _comp(op::CompositeOperation{:xor}, c1, c2)
 end
 
 function _comp(op::CompositeOperation{:lighter}, c1, c2)
-    T = eltype(c1)
     k1, k2 = float(alpha(c1)), float(alpha(c2))
     a = k1 + k2
     ac = min(oneunit(a), a)
@@ -153,8 +152,13 @@ RGB{Float64}(1.0,0.5,1.0)
 
 
 # without opacity
-@inline _blend_cc(mode::BlendMode, c1, c2, ::Nothing, ::typeof(CompositeSourceOver)) =
+@inline _blend_cc(mode::BlendMode, c1, c2, ::Nothing, ::OpaqueInSourceOutOperation) =
     _blend(mode, c1, c2)
+
+_blend_cc(mode::BlendMode, c1, c2, ::Nothing, ::OpaqueInDestinationOutOperation) = c1
+
+@inline _blend_cc(mode::BlendMode, c1, c2, ::Nothing, op::CompositeOperation{:lighter}) =
+    mapc((v1, v2) -> _w_safe(v1, oneunit(v1), v2, oneunit(v2)), c1, _blend(mode, c1, c2))
 
 @inline function _blend_tc(mode::BlendMode, c1, c2, ::Nothing, op)
     cm = mapch((v1, v2) -> _w(v1, v2, alpha(c1)), c2, _blend(mode, color(c1), c2))
@@ -165,6 +169,16 @@ end
 # with opacity
 @inline _blend_cc(mode::BlendMode, c1, c2, opacity::Real, ::typeof(CompositeSourceOver)) =
     mapch((v1, v2) -> _w(v1, v2, opacity), c1, _blend(mode, c1, c2))
+
+@inline _blend_cc(mode::BlendMode, c1, c2, opacity::Real, ::typeof(CompositeSourceAtop)) =
+    _blend_cc(mode, c1, c2, opacity, CompositeSourceOver)
+
+_blend_cc(mode::BlendMode, c1, c2, opacity::Real, ::typeof(CompositeDestination)) = c1
+
+_blend_cc(mode::BlendMode, c1, c2, opacity::Real, ::typeof(CompositeDestinationOver)) = c1
+
+@inline _blend_cc(mode::BlendMode, c1, c2, opacity::Real, ::CompositeOperation{:lighter}) =
+    mapc((v1, v2) -> _w_safe(v1, oneunit(opacity), v2, opacity), c1, _blend(mode, c1, c2))
 
 @inline function _blend_tc(mode::BlendMode, c1, c2, opacity::Real, op)
     cm = mapch((v1, v2) -> _w(v1, v2, alpha(c1)), c2, _blend(mode, color(c1), c2))
