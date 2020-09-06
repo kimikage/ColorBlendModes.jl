@@ -117,6 +117,10 @@ end
     include("composite.jl")
 end
 
+@testset "combination" begin
+    include("combination.jl")
+end
+
 @testset "keyword" begin
     @test keyword(BlendNormal) == "normal"
     @test keyword(BlendColorDodge) == "color-dodge"

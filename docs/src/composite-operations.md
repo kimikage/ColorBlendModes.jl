@@ -13,7 +13,7 @@ where:
 - `αsrc` and `αb` are the source alpha and backdrop alpha
 - `Fa` and `Fb` are defined by the operator in use
 - `co` is the output color pre-multiplied with the output alpha `αo`
-- `Csrc` and `Cb` are　the source color and backdrop color
+- `Csrc` and `Cb` are the source color and backdrop color
 - `Co` is the output color
 
 Note that the "destination" means the "backdrop", not the "output" in this

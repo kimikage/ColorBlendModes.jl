@@ -48,7 +48,7 @@ julia> blend.(image1, image2, mode=BlendMultiply)
 ```
 ### Opacity
 The keyword argument `opacity` controls the alpha of source color `c2`. If `c2`
-is a opaque color, the `opacity` is used as the source alpha. If `c2` is a
+is an opaque color, the `opacity` is used as the source alpha. If `c2` is a
 transparent color, `opacity * alpha(c2)` is used as the source alpha. The
 `opacity` is useful when used with broadcasting, i.e. the `opacity` acts as
 so-called "layer opacity".
