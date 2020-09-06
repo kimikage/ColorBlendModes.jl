@@ -1,9 +1,9 @@
 
 mapch(f, x, y) = mapc(f, x, y)
 mapch(f, x::C, y::C) where C <: Union{HSV, HSL, HSI} =
-    C(f(Hue(x.h), Hue(y.h)), f(x.s, y.s), f(comp3(x), comp3(y)))
+    C(f(Hue(x), Hue(y)), f(x.s, y.s), f(comp3(x), comp3(y)))
 mapch(f, x::C, y::C) where C <: Union{LCHab, LCHuv} =
-    C(f(x.l, y.l), f(x.c, y.c), f(Hue(x.h), Hue(y.h)))
+    C(f(x.l, y.l), f(x.c, y.c), f(Hue(x), Hue(y)))
 
 mapca(fc, a, x::C) where C <: TransparentColorN{2} = C(fc(comp1(x)), a)
 mapca(fc, a, x::C) where C <: TransparentColorN{3} = C(fc(comp1(x)), fc(comp2(x)), a)
@@ -15,9 +15,9 @@ mapca(fc, a, x::C, y::C) where C <: TransparentColorN{3} =
 mapca(fc, a, x::C, y::C) where C <: TransparentColorN{4} =
     C(fc(comp1(x), comp1(y)), fc(comp2(x), comp2(y)), fc(comp3(x), comp3(y)), a)
 mapca(fc, a, x::C, y::C) where C <: TransparentColorN{4, <:Union{HSV, HSL, HSI}} =
-    C(fc(Hue(x.h), Hue(y.h)), fc(x.s, y.s), fc(comp3(x), comp3(y)), a)
+    C(fc(Hue(x), Hue(y)), fc(x.s, y.s), fc(comp3(x), comp3(y)), a)
 mapca(fc, a, x::C, y::C) where C <: TransparentColorN{4, <:Union{LCHab, LCHuv}} =
-    C(fc(x.l, y.l), fc(x.c, y.c), fc(Hue(x.h), Hue(y.h)))
+    C(fc(x.l, y.l), fc(x.c, y.c), fc(Hue(x), Hue(y)))
 
 # complement
 _n(v::T) where T = oneunit(T) - v
@@ -26,9 +26,11 @@ _n(v::T) where T = oneunit(T) - v
 _w(v1::T, v2::T, w) where T = convert(T, muladd(_n(w), v1, w * v2))
 
 function _w(h1::Hue{T}, h2::Hue{T}, w) where T
-    d0 = h2.angle - h1.angle
+    h1a = ifelse(h1.isgray, h2.angle, h1.angle)
+    h2a = ifelse(h2.isgray, h1.angle, h2.angle)
+    d0 = h2a - h1a
     d = ifelse(abs(d0) > T(180), d0 - copysign(T(360), d0), d0)
-    a = muladd(d, w, h1.angle)
+    a = muladd(d, w, h1a)
     convert(T, ifelse(a > T(360), a - T(360), ifelse(a < T(0), a + T(360), a)))
 end
 
@@ -45,8 +47,7 @@ _w_safe(v1::T, w1, v2::T, w2) where T = min(oneunit(T), _w(v1, w1, v2, w2))
 _w_safe(v1::T, w1, v2::T, w2) where T <: FixedPoint =
     convert(T, min(float(typemax(T)), muladd(w1, float(v1), w2 * float(v2))))
 
-_comp(op::CompositeOperation{:clear}, c1, c2) =
-    mapc(v1 -> zero(v1), c1)
+_comp(op::CompositeOperation{:clear}, c1, c2) = mapc(v1 -> zero(v1), c1)
 
 _comp(op::CompositeOperation{:copy}, c1, c2) = c2
 

@@ -20,4 +20,8 @@
     @testset "$A over $A: $T" for T in (Float64, Float32)
         @test BlendNormal(A{T}(100,  0.75, 0, 0.6), A{T}(0, 0.5, 1, 0.6)) ≈ A{T}(200/7, 4/7, 5/7, 0.84)
     end
+
+    @testset "$C over gray $C: $T" for T in (Float64, Float32)
+        @test blend(C{T}(100, 0, 1), C{T}(200, 1, 0.5), opacity=0.5) ≈ C{T}(200, 0.5, 0.75)
+    end
 end

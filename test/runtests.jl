@@ -95,6 +95,13 @@ end
     @test ColorBlendModes._w(Hue(175.0), 0.4, Hue(185.0), 0.6) ≈ 181.0
     @test ColorBlendModes._w(Hue(230.0), 0.4, Hue(30.0), 0.6) ≈ 326.0
     @test ColorBlendModes._w(Hue(5.0), 0.4, Hue(355.0), 0.6) ≈ 359.0
+
+    @test ColorBlendModes._w(Hue(30.0, true), Hue(130.0), 0.0) ≈ 130.0
+    @test ColorBlendModes._w(Hue(30.0, true), Hue(130.0), 0.6) ≈ 130.0
+    @test ColorBlendModes._w(Hue(30.0, true), Hue(130.0), 1.0) ≈ 130.0
+    @test ColorBlendModes._w(Hue(30.0), Hue(130.0, true), 0.0) ≈ 30.0
+    @test ColorBlendModes._w(Hue(30.0), Hue(130.0, true), 0.6) ≈ 30.0
+    @test ColorBlendModes._w(Hue(30.0), Hue(130.0, true), 1.0) ≈ 30.0
 end
 
 @testset "blend: RGB" begin

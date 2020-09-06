@@ -36,3 +36,9 @@
         @test BlendNormal(A{T}(90, 80, 70, 0.6), A{T}(60, 50, -40, 0.6)) ≈ A{T}(68.57142857142857, 58.57142857142857, -8.57142857142857, 0.84)
     end
 end
+
+@testset "$C" for C in (LCHab, LCHuv)
+    @testset "$C over gray $C: $T" for T in (Float64, Float32)
+        @test blend(C{T}(40, 0, 100), C{T}(60, 100, 200), opacity=0.5) ≈ C{T}(50, 50, 200)
+    end
+end

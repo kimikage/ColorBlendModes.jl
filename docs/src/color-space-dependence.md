@@ -64,6 +64,21 @@ julia> blend(c1, blend(c2, c3))
 HSL{Float64}(240.0,1.0,0.8)
 ```
 
+In addition, in the case of blending a gray, i.e., a color with zero saturation,
+and a non-gray, the hue of the non-gray color is used.
+
+```jldoctest; setup=(using ColorTypes, ColorBlendModes;)
+julia> for w in 0.0:0.2:1.0 # gray to yellow green, not via brown
+           println(blend(HSI(12.3, 0.0, 0.5), HSI(78.9, 1.0, 0.5), opacity=w))
+       end
+HSI{Float64}(78.9,0.0,0.5)
+HSI{Float64}(78.9,0.2,0.5)
+HSI{Float64}(78.9,0.4,0.5)
+HSI{Float64}(78.9,0.6,0.5)
+HSI{Float64}(78.9,0.8,0.5)
+HSI{Float64}(78.9,1.0,0.5)
+```
+
 ## Gamma correction
 
 The [`blend`](@ref) function blends colors in a "uniform" space. Note that this
