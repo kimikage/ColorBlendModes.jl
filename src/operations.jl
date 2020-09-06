@@ -52,7 +52,7 @@ _comp(op::CompositeOperation{:copy}, c1, c2) = c2
 
 _comp(op::CompositeOperation{:destination}, c1, c2) = c1
 
-function _comp(op::CompositeOperation{Symbol("source-over")}, c1, c2)
+function _comp(op::typeof(CompositeSourceOver), c1, c2)
     k1 = mul(alpha(c1), _n(alpha(c2)))
     k2 = alpha(c2)
     a = k1 + k2
@@ -61,34 +61,30 @@ function _comp(op::CompositeOperation{Symbol("source-over")}, c1, c2)
     mapca((v1, v2) -> _w(v1, k1a, v2, k2a), a, c1, c2)
 end
 
-_comp(op::CompositeOperation{Symbol("destination-over")}, c1, c2) =
-    _comp(CompositeSourceOver, c2, c1)
+_comp(op::typeof(CompositeDestinationOver), c1, c2) = _comp(CompositeSourceOver, c2, c1)
 
-function _comp(op::CompositeOperation{Symbol("source-in")}, c1, c2)
+function _comp(op::typeof(CompositeSourceIn), c1, c2)
     a = mul(alpha(c1), alpha(c2))
     ifelse(a == zero(a), mapca(v -> a, a, c2), mapca(v -> v, a, c2))
 end
 
-_comp(op::CompositeOperation{Symbol("destination-in")}, c1, c2) =
-    _comp(CompositeSourceIn, c2, c1)
+_comp(op::typeof(CompositeDestinationIn), c1, c2) = _comp(CompositeSourceIn, c2, c1)
 
-function _comp(op::CompositeOperation{Symbol("source-out")}, c1, c2)
+function _comp(op::typeof(CompositeSourceOut), c1, c2)
     a = mul(_n(alpha(c1)), alpha(c2))
     ifelse(a == zero(a), mapca(v -> a, a, c2), mapca(v -> v, a, c2))
 end
 
-_comp(op::CompositeOperation{Symbol("destination-out")}, c1, c2) =
-    _comp(CompositeSourceOut, c2, c1)
+_comp(op::typeof(CompositeDestinationOut), c1, c2) = _comp(CompositeSourceOut, c2, c1)
 
-function _comp(op::CompositeOperation{Symbol("source-atop")}, c1, c2)
+function _comp(op::typeof(CompositeSourceAtop), c1, c2)
     a1, a2 = alpha(c1), alpha(c2)
     k1a = a1 == zero(a1) ? a1 : _n(a2)
     k2a = a1 == zero(a1) ? a1 : a2
     mapca((v1, v2) -> _w(v1, k1a, v2, k2a), a1, c1, c2)
 end
 
-_comp(op::CompositeOperation{Symbol("destination-atop")}, c1, c2) =
-    _comp(CompositeSourceAtop, c2, c1)
+_comp(op::typeof(CompositeDestinationAtop), c1, c2) = _comp(CompositeSourceAtop, c2, c1)
 
 function _comp(op::CompositeOperation{:xor}, c1, c2)
     m = mul(alpha(c1), alpha(c2))
@@ -156,7 +152,7 @@ RGB{Float64}(1.0,0.5,1.0)
 
 
 # without opacity
-@inline _blend_cc(mode::BlendMode, c1, c2, ::Nothing, ::CompositeOperation{Symbol("source-over")}) =
+@inline _blend_cc(mode::BlendMode, c1, c2, ::Nothing, ::typeof(CompositeSourceOver)) =
     _blend(mode, c1, c2)
 
 @inline function _blend_tc(mode::BlendMode, c1, c2, ::Nothing, op)
@@ -166,7 +162,7 @@ end
 
 
 # with opacity
-@inline _blend_cc(mode::BlendMode, c1, c2, opacity::Real, ::CompositeOperation{Symbol("source-over")}) =
+@inline _blend_cc(mode::BlendMode, c1, c2, opacity::Real, ::typeof(CompositeSourceOver)) =
     mapch((v1, v2) -> _w(v1, v2, opacity), c1, _blend(mode, c1, c2))
 
 @inline function _blend_tc(mode::BlendMode, c1, c2, opacity::Real, op)
@@ -230,8 +226,7 @@ _blend(::BlendMode{:darken}, c1::C, c2::C) where C <: Color = mapch(min, c1, c2)
 
 _blend(::BlendMode{:lighten}, c1::C, c2::C) where C <: Color = mapch(max, c1, c2)
 
-_blend(::BlendMode{Symbol("color-dodge")}, c1::C, c2::C) where C <: Color =
-    mapch(dodge, c1, c2)
+_blend(::typeof(BlendColorDodge), c1::C, c2::C) where C <: Color = mapch(dodge, c1, c2)
 
 function dodge(v1, v2)
     v1 == zero(v1) && return v1
@@ -251,8 +246,7 @@ end
     reinterpret(N0f16, unsafe_trunc(typeof(r1), min(Float64(r1), round(d))))
 end
 
-_blend(::BlendMode{Symbol("color-burn")}, c1::C, c2::C) where C <: Color =
-    mapch(burn, c1, c2)
+_blend(::typeof(BlendColorBurn), c1::C, c2::C) where C <: Color = mapch(burn, c1, c2)
 
 # Note that "color-burn" tends to cause the loss of significance.
 function burn(v1, v2)
@@ -276,8 +270,7 @@ end
     reinterpret(N0f16, unsafe_trunc(typeof(r1), max(0.0, round(d))))
 end
 
-_blend(::BlendMode{Symbol("hard-light")}, c1::C, c2::C) where C <: Color =
-    mapch(hardlight, c1, c2)
+_blend(::typeof(BlendHardLight), c1::C, c2::C) where C <: Color = mapch(hardlight, c1, c2)
 
 function hardlight(v1, v2)
     v2r = min(v2, _n(v2))
@@ -285,11 +278,10 @@ function hardlight(v1, v2)
     ifelse(v2 == v2r, mr, _n(mr))
 end
 
-_blend(::BlendMode{Symbol("hard-light")}, c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}} =
+_blend(::typeof(BlendHardLight), c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}} =
     _blend(BlendOverlay, c2, c1)
 
-_blend(::BlendMode{Symbol("soft-light")}, c1::C, c2::C) where C <: Color =
-    mapch(softlight, c1, c2)
+_blend(::typeof(BlendSoftLight), c1::C, c2::C) where C <: Color = mapch(softlight, c1, c2)
 
 function softlight(v1, v2)
     v2r = min(v2, _n(v2))
@@ -304,7 +296,7 @@ function softlight(v1, v2)
 end
 softlight(v1::X, v2::X) where X <: FixedPoint = softlight(float(v1), float(v2)) % X
 
-function _blend(::BlendMode{Symbol("soft-light")}, c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}}
+function _blend(::typeof(BlendSoftLight), c1::C, c2::C) where {T, C <: Union{Lab{T}, Luv{T}}}
     l = softlight(c1.l / T(100), c2.l / T(100))
     a = softlight(muladd(comp2(c1), T(1/256), T(0.5)),
                   muladd(comp2(c2), T(1/256), T(0.5)))
@@ -313,13 +305,11 @@ function _blend(::BlendMode{Symbol("soft-light")}, c1::C, c2::C) where {T, C <: 
     C(l * T(100), muladd(a, T(256), T(-128)) , muladd(b, T(256), T(-128)))
 end
 
-_blend(::BlendMode{:difference}, c1::C, c2::C) where C <: Color =
-    mapch(difference, c1, c2)
+_blend(::BlendMode{:difference}, c1::C, c2::C) where C <: Color = mapch(difference, c1, c2)
 
 difference(v1, v2) = max(v1, v2) - min(v1, v2)
 
-_blend(::BlendMode{:exclusion}, c1::C, c2::C) where C <: Color =
-    mapch(exclusion, c1, c2)
+_blend(::BlendMode{:exclusion}, c1::C, c2::C) where C <: Color = mapch(exclusion, c1, c2)
 
 function exclusion(v1, v2)
     m = mul(v1, v2)
