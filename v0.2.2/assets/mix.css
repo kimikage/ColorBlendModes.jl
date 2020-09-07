@@ -1,0 +1,96 @@
+
+article > p {
+  display: inline-block;
+}
+div.mix {
+  display: none;
+  position: relative;
+  width: 256px;
+  height: 256px;
+  margin-left: 1em;
+}
+
+@supports (mix-blend-mode: normal) {
+  div.mix {
+    display: inline-block;
+  }
+}
+div.normal div {
+  mix-blend-mode: normal;
+}
+div.multiply div {
+  mix-blend-mode: multiply;
+}
+div.screen div {
+  mix-blend-mode: screen;
+}
+div.overlay div {
+  mix-blend-mode: overlay;
+}
+div.darken div {
+  mix-blend-mode: darken;
+}
+div.lighten div {
+  mix-blend-mode: lighten;
+}
+div.color-dodge div {
+  mix-blend-mode: color-dodge;
+}
+div.color-burn div {
+  mix-blend-mode: color-burn;
+}
+div.hard-light div {
+  mix-blend-mode: hard-light;
+}
+div.soft-light div {
+  mix-blend-mode: soft-light;
+}
+div.difference div {
+  mix-blend-mode: difference;
+}
+div.exclusion div {
+  mix-blend-mode: exclusion;
+}
+div.hue div {
+  mix-blend-mode: hue;
+}
+div.saturation div {
+  mix-blend-mode: saturation;
+}
+div.color div {
+  mix-blend-mode: color;
+}
+div.luminosity div {
+  mix-blend-mode: luminosity;
+}
+
+div.mix div {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  background: url('juliadots.png');
+  transition: transform 0.1s ease;
+}
+div.mix div:first-child {
+  mix-blend-mode: unset;
+  background: url('grad_256.png');
+}
+
+div.mix div:last-child {
+  opacity: 0.4;
+  background: url('wave_256.png');
+}
+
+div.mix:hover div {
+  transform:translateY(-4%);
+}
+div.mix:hover div:first-child {
+  transform:unset;
+}
+div.mix:hover div:last-child {
+  transform:translateY(16%);
+}
+
+article td img {
+  background: url('checker16.png');
+}
