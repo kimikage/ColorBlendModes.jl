@@ -32,17 +32,17 @@ The [`blend`](@ref) function is compatible with the broadcasting. Therefore,
 you can blend two images with the same size.
 ```jldoctest ex; setup = :(using ColorBlendModes, ColorTypes, FixedPointNumbers;)
 julia> image1 = [RGB(r, 1, b) for r=0:1, b=0:1]
-2×2 Array{RGB{N0f8},2} with eltype RGB{Normed{UInt8,8}}:
+2×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}:
  RGB{N0f8}(0.0,1.0,0.0)  RGB{N0f8}(0.0,1.0,1.0)
  RGB{N0f8}(1.0,1.0,0.0)  RGB{N0f8}(1.0,1.0,1.0)
 
 julia> image2 = [RGB(r, g, 0) for g=0:1, r=0:1]
-2×2 Array{RGB{N0f8},2} with eltype RGB{Normed{UInt8,8}}:
+2×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}:
  RGB{N0f8}(0.0,0.0,0.0)  RGB{N0f8}(1.0,0.0,0.0)
  RGB{N0f8}(0.0,1.0,0.0)  RGB{N0f8}(1.0,1.0,0.0)
 
 julia> blend.(image1, image2, mode=BlendMultiply)
-2×2 Array{RGB{N0f8},2} with eltype RGB{Normed{UInt8,8}}:
+2×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}:
  RGB{N0f8}(0.0,0.0,0.0)  RGB{N0f8}(0.0,0.0,0.0)
  RGB{N0f8}(0.0,1.0,0.0)  RGB{N0f8}(1.0,1.0,0.0)
 ```
