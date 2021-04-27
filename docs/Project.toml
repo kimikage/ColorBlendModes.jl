@@ -5,5 +5,4 @@ FixedPointNumbers = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 PNGFiles = "f57f5aa1-a3ce-4bc8-8ab9-96f992907883"
 
 [compat]
-Documenter = "0.25"
 julia = "1"

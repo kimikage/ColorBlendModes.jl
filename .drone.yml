@@ -1,5 +1,6 @@
 ---
 kind: pipeline
+type: docker
 name: linux - arm - Julia 1.0
 
 platform:
@@ -14,6 +15,7 @@ steps:
 
 ---
 kind: pipeline
+type: docker
 name: linux - arm64 - Julia 1.0
 
 platform:
@@ -32,6 +34,26 @@ steps:
 
 ---
 kind: pipeline
+type: docker
+name: linux - arm - Julia 1
+
+platform:
+  os: linux
+  arch: arm
+
+steps:
+- name: build
+  image: julia:1
+  environment:
+    CODECOV_TOKEN:
+      from_secret: CODECOV_TOKEN
+  commands:
+  - julia --project=. --check-bounds=yes --color=yes -e 'using InteractiveUtils; versioninfo(); using Pkg; Pkg.build(); Pkg.test(coverage=true)'
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit_local(process_folder())'
+
+---
+kind: pipeline
+type: docker
 name: linux - arm64 - Julia 1
 
 platform:
