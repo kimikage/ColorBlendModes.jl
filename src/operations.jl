@@ -23,7 +23,7 @@ mapca(fc, a, x::C, y::C) where C <: TransparentColorN{4, <:Union{LCHab, LCHuv}} 
 _n(v::T) where T = oneunit(T) - v
 
 # linear interpolation
-_w(v1::T, v2::T, w) where T = convert(T, muladd(_n(w), v1, w * v2))
+_w(v1::T, v2::T, w) where T = _w(v1, _n(w), v2, w)
 
 function _w(h1::Hue{T}, h2::Hue{T}, w) where T
     h1a = ifelse(h1.isgray, h2.angle, h1.angle)
@@ -35,6 +35,18 @@ function _w(h1::Hue{T}, h2::Hue{T}, w) where T
 end
 
 _w(v1::T, w1, v2::T, w2) where T = convert(T, muladd(w1, v1, w2 * v2))
+
+function _w(v1::T, w1::T, v2::T, w2::T) where T <: Union{N0f8, N0f16}
+    r1, rw1 = reinterpret(v1), reinterpret(w1)
+    r2, rw2 = reinterpret(v2), reinterpret(w2)
+    m = widemul(r1, rw1) + widemul(r2, rw2)
+    if T === N0f8
+        z = (m + ((m + 0x80) >> 0x8) + 0x80) >> 0x8
+    else
+        z = (m + ((m + 0x8000) >> 0x10) + 0x8000) >> 0x10
+    end
+    reinterpret(T, unsafe_trunc(typeof(r1), z))
+end
 
 function _w(h1::Hue{T}, w1, h2::Hue{T}, w2) where T
     w = w1 + w2
