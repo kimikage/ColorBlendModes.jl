@@ -1,4 +1,5 @@
 [deps]
+ColorBlendModes = "60508b50-96e1-4007-9d6c-f475c410f16b"
 ColorTypes = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 FixedPointNumbers = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"

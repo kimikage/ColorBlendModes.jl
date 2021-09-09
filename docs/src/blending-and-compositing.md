@@ -46,6 +46,22 @@ julia> blend.(image1, image2, mode=BlendMultiply)
  RGB{N0f8}(0.0,0.0,0.0)  RGB{N0f8}(0.0,0.0,0.0)
  RGB{N0f8}(0.0,1.0,0.0)  RGB{N0f8}(1.0,1.0,0.0)
 ```
+Also, by using broadcast assignment (`.=`), you can do in-place blending, i.e.
+avoid allocating new arrays.
+```jldoctest ex
+julia> buf = similar(image1); # allocate an output array in advance
+
+julia> buf .= blend.(image1, image2, mode=BlendLighten)
+2×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}:
+ RGB{N0f8}(0.0,1.0,0.0)  RGB{N0f8}(1.0,1.0,1.0)
+ RGB{N0f8}(1.0,1.0,0.0)  RGB{N0f8}(1.0,1.0,1.0)
+
+julia> @. buf = blend(buf, image2, mode=BlendDifference) # `@.` macro may be useful
+2×2 Array{RGB{N0f8},2} with eltype RGB{N0f8}:
+ RGB{N0f8}(0.0,1.0,0.0)  RGB{N0f8}(0.0,1.0,1.0)
+ RGB{N0f8}(1.0,0.0,0.0)  RGB{N0f8}(0.0,0.0,1.0)
+```
+
 ### Opacity
 The keyword argument `opacity` controls the alpha of source color `c2`. If `c2`
 is an opaque color, the `opacity` is used as the source alpha. If `c2` is a
